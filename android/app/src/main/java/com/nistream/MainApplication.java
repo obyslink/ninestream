@@ -5,7 +5,7 @@ import android.app.Application;
 import com.facebook.react.ReactApplication;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.imagepicker.ImagePickerPackage;
-import com.wix.autogrowtextinput.AutoGrowTextInputPackage;
+// import com.wix.autogrowtextinput.AutoGrowTextInputPackage;
 import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.BV.LinearGradient.LinearGradientPackage;
@@ -35,7 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new SplashScreenReactPackage(),
             new ImagePickerPackage(),
-            new AutoGrowTextInputPackage(),
+            // new AutoGrowTextInputPackage(),
             new ReactNativeDialogsPackage(),
             new RNDeviceInfo(),
             new LinearGradientPackage(),

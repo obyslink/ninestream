@@ -104,8 +104,8 @@ const Screens = createStackNavigator({
         {
           initialRouteName: 'LiveShowsList',
           header: null,
-          headerTransitionPreset: 'fade-in-place',
-          headerMode: 'float',
+          // headerTransitionPreset: 'fade-in-place',
+          // headerMode: 'float',
         }
       ),
       Vod: createStackNavigator(
@@ -127,8 +127,8 @@ const Screens = createStackNavigator({
         {
           initialRouteName: 'Setting',
           header: null,
-          headerTransitionPreset: 'fade-in-place',
-          headerMode: 'float',
+          // headerTransitionPreset: 'fade-in-place',
+          // headerMode: 'float',
         }
       ),
       },{

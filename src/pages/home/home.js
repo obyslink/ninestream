@@ -11,6 +11,8 @@ import { getUserObject } from "../../store/actions/user";
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 const { width } = Dimensions.get('window');
+// import SplashScreen from 'react-native-splash-screen';
+
 
 class Home extends Component {
   constructor(props) {
@@ -72,9 +74,11 @@ class Home extends Component {
                 Post('/user/login_device', JSON.parse(userRaw)).then(res => {
                   // console.log("NEW DATA", res);
                   if (!res.error) {
+                    // SplashScreen.hide();
                     this.storeItem('user', res.content);
                     this.props.navigation.navigate('Dashboard');
                   } else {
+                    // SplashScreen.hide();
                     this.props.navigation.navigate('Login');
                   }
                 })
@@ -116,7 +120,7 @@ class Home extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.isConnected !== this.state.isConnected && this.state.isConnected) {
       // user has internet connection
-      console.log("here");
+      // console.log("here");
 
       if (typeof this.state.user !== null) {
         // user has not logged in before

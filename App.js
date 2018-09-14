@@ -50,11 +50,15 @@ import Verify from './src/pages/verify/verify';
 import { createStackNavigator } from 'react-navigation';
 // import { createDrawerNavigator, DrawerItems, SafeAreaView } from 'react-navigation';
 import { createMaterialTopTabNavigator } from 'react-navigation';
-
+import SplashScreen from 'react-native-splash-screen';
 
 const store = createStore(appReducer, applyMiddleware(thunk));
 
 export default class App extends Component {
+  componentDidMount(){
+    SplashScreen.hide();
+  }
+
   constructor(props) {
     super(props);
     

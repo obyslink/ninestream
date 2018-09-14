@@ -7,7 +7,7 @@ import { Post } from '../reuse/post';
 import { withNavigation } from 'react-navigation'; 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setUserId } from '../../store/actions/user';
+import { setUserId, getUserObject } from '../../store/actions/user';
 import { Kohana } from 'react-native-textinput-effects';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import DeviceInfo from 'react-native-device-info';
@@ -62,6 +62,7 @@ class Loginform extends Component {
           if (!res.error) {
             this.props.navigation.navigate('Dashboard');
             this.storeItem('user', res.content);
+            this.props.getUserObject(res.content);
             this.setState({
               loading: false
             })
@@ -175,6 +176,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     setUserId: setUserId,
+    getUserObject: getUserObject
   }, dispatch)
 }
 

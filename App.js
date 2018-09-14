@@ -138,7 +138,7 @@ const Screens = createStackNavigator({
       },{
         initialRouteName: 'Xplore',
         navigationOptions: ({ navigation, screenProps }) => ({
-          swipeEnabled: false,
+          swipeEnabled: true,
           tabBarVisible: navigation.state.index === 0,
           tabBarIcon: ({ focused, tintColor }) => {
             const { routeName } = navigation.state;

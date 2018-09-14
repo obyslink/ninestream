@@ -65,6 +65,7 @@ class Home extends Component {
         // user has internet connection
         if (typeof JSON.parse(value) !== 'null') {
           // get app version
+          this.props.getUserObject(JSON.parse(value) !== null ? JSON.parse(value): {})
           Get('/mobile_config/get_app_version').then(res => {
             console.log('MOBILE', res);
             
@@ -82,6 +83,12 @@ class Home extends Component {
                     this.props.navigation.navigate('Login');
                   }
                 })
+              } else {
+                this.setState({
+                  text: "There is a new update. Please the app store to update your app",
+                  visible: true,
+                  // isConnected: false
+                })
               }
             }
           })
@@ -89,7 +96,6 @@ class Home extends Component {
           // user already logged in
           this.props.navigation.navigate('Login');
         }
-        this.props.getUserObject(JSON.parse(value) !== null ? JSON.parse(value): {})
       } else {
         // no internet connection
         this.setState({
@@ -123,6 +129,7 @@ class Home extends Component {
       // console.log("here");
 
       if (typeof this.state.user !== null) {
+        this.props.getUserObject(this.state.user)
         // user has not logged in before
         Post('/user/login_device', this.state.userRaw).then(res => {
           // console.log("NEW DATA", res);
@@ -137,11 +144,8 @@ class Home extends Component {
         // user already logged in
         this.props.navigation.navigate('Login');
       }
-      this.props.getUserObject(this.state.user)
     }
   }
-
-
 
   render() {
     console.log(this.state);
@@ -149,7 +153,7 @@ class Home extends Component {
     return (
       <Container style={styles.root} >
         {/* <Image source={logo} style={styles.back} /> */}
-        <ImageBackground source={logo} style={styles.back} >
+        {/* <ImageBackground source={logo} style={styles.back} > */}
           {
             !this.state.isConnected ?
               <View style={styles.offlineContainer}>
@@ -171,7 +175,7 @@ class Home extends Component {
           >
             {this.state.text}
           </Snackbar>
-        </ImageBackground>
+        {/* </ImageBackground> */}
       </Container>
     );
   }

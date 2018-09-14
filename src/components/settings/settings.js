@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Platform, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
-import { Container, Text, Thumbnail, Icon } from 'native-base';
+import { Container, Text, Thumbnail, Icon, Spinner } from 'native-base';
 import profile from '../../assets/profile.jpg';
 import gone from '../../assets/gone.jpg';
 import SettingForm from './settingforms';
@@ -10,8 +10,6 @@ import { bindActionCreators } from 'redux';
 import { setUserId } from '../../store/actions/user';
 import UserAvatar from 'react-native-user-avatar';
 import { Post } from '../reuse/post';
-
-
 
 class SettingComponent extends Component {
   static navigationOptions = {
@@ -48,12 +46,12 @@ class SettingComponent extends Component {
 
       if (response.didCancel) {
         console.log('User cancelled photo picker');
-      }else if (response.error) {
+      } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
-      }else if (response.customButton) {
+      } else if (response.customButton) {
         // console.log('User tapped custom button: ', response.customButton);
-        
-      }else {
+
+      } else {
         let source = { uri: response.uri };
 
         // You can also display the image using data:
@@ -69,54 +67,70 @@ class SettingComponent extends Component {
 
   render() {
     console.log(this.state);
-    
+
     return (
       <Container>
-        <View
-          style={{ height: 180, backgroundColor: '#f48221' }} >
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 30 }} >
-              {
-                typeof this.props.user.user.profile !== "undefined" &&
-                  this.props.user.user.profile.avatar === null ?
-                    <View>
-                      <UserAvatar 
-                        size="80" 
-                        name={this.props.user.user.profile.firstName + " " + this.props.user.user.profile.lastName} 
-                        colors={['#000', '#fafafa', '#372B25']} 
-                      />
-                      <Icon name="ios-camera" onPress={this.selectPhotoTapped.bind(this)} style={{ 
-                          width: 35,
-                          height: 35,
-                          borderRadius: 35/2,
-                          backgroundColor: 'white',
-                          marginLeft: 35,
-                          fontSize: 25,
-                          paddingLeft: 8,
-                          paddingTop: 3,
-                          marginTop: -25
-                        }} 
-                      />
-                    </View>
-                  :
-                    <Thumbnail style={{ padding: 5, borderColor: "white" }} large source={this.props.user.user.profile.avatar} />
-              }
-              
-              <View style={{ flex: 1, marginTop: 3 , marginBottom: 3 }}>
-                <Text style={{ color: 'white', fontSize: 14, textAlign: 'center', paddingLeft: 2 }} >
-                  {
-                    typeof this.props.user.user.profile !== "undefined" &&
-                      this.props.user.user.profile.firstName + " " + this.props.user.user.profile.lastName
-                  }
-                </Text>
-                <Text style={{ color: '#372B25', fontSize: 13, textAlign: 'center', paddingLeft: 2, fontWeight: '500' }} >
-                  {
-                    typeof this.props.user.user.profile !== "undefined" &&
-                      this.props.user.user.profile.countryName
-                  }
-                </Text>
-              </View>
+        {
+          typeof this.props.user.user.profile === "undefined" ?
+            <View
+              contentContainerStyle={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center"
+              }}
+            >
+              <Spinner color="white" />
             </View>
+          :
+          <View
+          style={{ height: 180, backgroundColor: '#f48221' }} >
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 30 }} >
+            {
+              typeof this.props.user.user.profile.avatar !== 'null' ?
+                <View>
+                  <UserAvatar
+                    size="80"
+                    name={this.props.user.user.profile.firstName + " " + this.props.user.user.profile.lastName}
+                    colors={['#000', '#fafafa', '#372B25']}
+                  />
+                  <Icon name="ios-camera" onPress={this.selectPhotoTapped.bind(this)} style={{
+                    width: 35,
+                    height: 35,
+                    borderRadius: 35 / 2,
+                    backgroundColor: 'white',
+                    marginLeft: 35,
+                    fontSize: 25,
+                    paddingLeft: 8,
+                    paddingTop: 3,
+                    marginTop: -25
+                  }}
+                  />
+                </View>
+                :
+                <Thumbnail
+                  style={{ padding: 5, borderColor: "white" }}
+                  large
+                  source={this.props.user.user.profile.avatar}
+                />
+            }
+
+            <View style={{ flex: 1, marginTop: 3, marginBottom: 3 }}>
+              <Text style={{ color: 'white', fontSize: 14, textAlign: 'center', paddingLeft: 2 }} >
+                {
+                  typeof this.props.user.user.profile !== "undefined" &&
+                  this.props.user.user.profile.firstName + " " + this.props.user.user.profile.lastName
+                }
+              </Text>
+              <Text style={{ color: '#372B25', fontSize: 13, textAlign: 'center', paddingLeft: 2, fontWeight: '500' }} >
+                {
+                  typeof this.props.user.user.profile !== "undefined" &&
+                  this.props.user.user.profile.countryName
+                }
+              </Text>
+            </View>
+          </View>
         </View>
+        }
         <SettingForm />
       </Container>
     );
@@ -145,7 +159,7 @@ const classes = StyleSheet.create({
     alignItems: 'center',
     // flexDirection: 'row',
   },
-  avatar:{
+  avatar: {
     // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, AsyncStorage } from 'react-native';
-import gone from '../../../assets/aqua.jpg';
 import { withNavigation } from 'react-navigation';
 import { Thumbnail, Content, Spinner, Picker, Container } from 'native-base';
 import { Post } from '../../../components/reuse/post';

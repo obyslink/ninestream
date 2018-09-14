@@ -1,49 +1,187 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
+import React, { Component } from 'react';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+import appReducer from './src/store/reducers/index.js';
+import Login from './src/pages/login/login';
 
-type Props = {};
-export default class App extends Component<Props> {
+// register
+import Register from './src/pages/register/register';
+
+import Settings from './src/pages/settings/settings';
+import Password from './src/components/settings/password';
+
+import Home from './src/pages/home/home';
+
+// import Trending from './src/pages/dashboard/trending/trending';
+
+// import Profile from './src/pages/dashboard/profile/profile';
+import { Icon } from 'native-base';
+import { Provider as PaperProvider } from 'react-native-paper';
+
+// xplore;
+import XploreHome from './src/pages/dashboard/xplore/xplorehome.js';
+import XploreWatch from './src/pages/dashboard/xplore/xplorewatch';
+
+// live
+import LiveShowsList from './src/pages/dashboard/live/liveshowslist.js';
+import LiveShow from './src/pages/dashboard/live/liveshow.js';
+import Voting from './src/pages/dashboard/live/voting.js';
+import Input from './src/pages/dashboard/live/input.js';
+import Reply from './src/pages/dashboard/live/reply';
+
+import {
+  Platform, StatusBar
+} from 'react-native';
+
+// vod
+import Vodwatch from "./src/pages/dashboard/vod/vodwatch";
+import Vodlist from "./src/pages/dashboard/vod/vod";
+import Voddetails from "./src/pages/dashboard/vod/voddetails";
+
+//messaging
+// import Userchatlist from './src/pages/dashboard/message/userchatlist';
+// import Userchat from './src/pages/dashboard/message/userChat';
+
+import Verify from './src/pages/verify/verify';
+
+import { createStackNavigator } from 'react-navigation';
+// import { createDrawerNavigator, DrawerItems, SafeAreaView } from 'react-navigation';
+import { createMaterialTopTabNavigator } from 'react-navigation';
+
+
+const store = createStore(appReducer, applyMiddleware(thunk));
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    
+    if (Platform.OS === 'ios') {
+      StatusBar.setBarStyle('light-content');
+    } else {
+      StatusBar.setBackgroundColor('black');
+    }
+  }
+  
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-      </View>
+      <Provider store={store}>
+        <PaperProvider>
+          <Screens />
+        </PaperProvider>
+      </Provider>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+const Screens = createStackNavigator({
+  Home: Home,
+  Register: Register,
+  Login: Login,
+  Verify: Verify,
+  // Dashboard: createStackNavigator({
+  Dashboard: createMaterialTopTabNavigator({
+      Xplore: createStackNavigator(
+        {
+          XploreHome: XploreHome,
+          XploreWatch: XploreWatch
+        },
+        {
+          initialRouteName: 'XploreHome',
+          header: null
+        }
+      ),
+      Live: createStackNavigator(
+        {
+          LiveShowsList: LiveShowsList,
+          Voting: Voting,
+          LiveShow: LiveShow,
+          Input: Input,
+          Reply: Reply,
+        },
+        {
+          initialRouteName: 'LiveShowsList',
+          header: null,
+          headerTransitionPreset: 'fade-in-place',
+          headerMode: 'float',
+        }
+      ),
+      Vod: createStackNavigator(
+        {
+          Vodlist: Vodlist,
+          Voddetails: Voddetails,
+          Vodwatch: Vodwatch
+        },
+        {
+          initialRouteName: 'Vodlist',
+          header: null
+        }
+      ),
+      Settings: createStackNavigator(
+        {
+          Setting: Settings,
+          Password: Password,
+        },
+        {
+          initialRouteName: 'Setting',
+          header: null,
+          headerTransitionPreset: 'fade-in-place',
+          headerMode: 'float',
+        }
+      ),
+      },{
+        initialRouteName: 'Xplore',
+        navigationOptions: ({ navigation, screenProps }) => ({
+          swipeEnabled: false,
+          tabBarVisible: navigation.state.index === 0,
+          tabBarIcon: ({ focused, tintColor }) => {
+            const { routeName } = navigation.state;
+            let iconName;
+            if (routeName === 'Xplore') {
+              iconName = `ios-home${focused ? '' : '-outline'}`;
+            } else if (routeName === 'Live') {
+              iconName = `ios-cloudy${focused ? '' : '-outline'}`;
+            } else if (routeName === 'Vod') {
+              iconName = `ios-videocam${focused ? '' : '-outline'}`;
+            } else if (routeName === 'Settings') {
+              iconName = `ios-settings${focused ? '' : '-outline'}`;
+            }
+            // You can return any component that you like here! We usually use an
+            // icon component from react-native-vector-icons
+            return <Icon name={iconName} size={10} color={tintColor} style={{ color: 'white' }} />;
+          },
+        }),
+        animationEnabled: false,
+        // optimizationsEnabled: true,
+        tabBarOptions: {
+          activeTintColor: 'tomato',
+          inactiveTintColor: 'gray',
+          showLabel: false,
+          showIcon: true,
+          indicatorStyle: {
+            backgroundColor: "#f48221"
+          },
+          style: {
+            backgroundColor: 'black',
+          }
+        }
+      }) //stream: createMaterialTopTabNavigator({
+    // }, 
+    // {
+    //   navigationOptions: {
+    //     header: null
+    //   }
+    // }
+    // ) // Dashboard: createStackNavigator({
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  {
+    initialRouteName: 'Home',
+    headerMode: 'none'
+  }
+); // const Stack = createStackNavigator({
+
+store.subscribe(() => {
+  console.log("Store Changed, ", store.getState());
 });

@@ -63,7 +63,7 @@ export default class App extends Component {
     super(props);
     
     if (Platform.OS === 'ios') {
-      StatusBar.setBarStyle('light-content');
+      StatusBar.setBarStyle('dark-content');
     } else {
       StatusBar.setBackgroundColor('black');
     }
@@ -85,8 +85,8 @@ const Screens = createStackNavigator({
   Register: Register,
   Login: Login,
   Verify: Verify,
-  // Dashboard: createStackNavigator({
-  Dashboard: createMaterialTopTabNavigator({
+  Dashboard: {
+    screen: createMaterialTopTabNavigator({
       Xplore: createStackNavigator(
         {
           XploreHome: XploreHome,
@@ -108,8 +108,8 @@ const Screens = createStackNavigator({
         {
           initialRouteName: 'LiveShowsList',
           header: null,
-          // headerTransitionPreset: 'fade-in-place',
-          // headerMode: 'float',
+          headerTransitionPreset: 'fade-in-place',
+          headerMode: 'float',
         }
       ),
       Vod: createStackNavigator(
@@ -120,7 +120,7 @@ const Screens = createStackNavigator({
         },
         {
           initialRouteName: 'Vodlist',
-          header: null
+          // header: null
         }
       ),
       Settings: createStackNavigator(
@@ -131,14 +131,14 @@ const Screens = createStackNavigator({
         {
           initialRouteName: 'Setting',
           header: null,
-          // headerTransitionPreset: 'fade-in-place',
-          // headerMode: 'float',
+          headerTransitionPreset: 'fade-in-place',
+          headerMode: 'float',
         }
       ),
       },{
         initialRouteName: 'Xplore',
         navigationOptions: ({ navigation, screenProps }) => ({
-          swipeEnabled: true,
+          swipeEnabled: navigation.state.index === 0,
           tabBarVisible: navigation.state.index === 0,
           tabBarIcon: ({ focused, tintColor }) => {
             const { routeName } = navigation.state;
@@ -169,20 +169,18 @@ const Screens = createStackNavigator({
           },
           style: {
             backgroundColor: 'black',
+            marginTop: Platform.OS === 'ios' ? 30 : 0
           }
         }
-      }) //stream: createMaterialTopTabNavigator({
-    // }, 
-    // {
-    //   navigationOptions: {
-    //     header: null
-    //   }
-    // }
-    // ) // Dashboard: createStackNavigator({
+      }),
+    navigationOptions: {
+      header: null
+    }
+  }, 
   },
   {
     initialRouteName: 'Home',
-    headerMode: 'none'
+    // headerMode: 'none'
   }
 ); // const Stack = createStackNavigator({
 

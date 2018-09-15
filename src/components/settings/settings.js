@@ -91,7 +91,7 @@ class SettingComponent extends Component {
                   <UserAvatar
                     size="80"
                     name={this.props.user.user.profile.firstName + " " + this.props.user.user.profile.lastName}
-                    colors={['#000', '#fafafa', '#372B25']}
+                    colors={['#000', '#fafafa', '#372B25', '#ccaabb']}
                   />
                   <Icon name="ios-camera" onPress={this.selectPhotoTapped.bind(this)} style={{
                     width: 35,

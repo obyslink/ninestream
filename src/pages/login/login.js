@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Image, Text, ImageBackground, ScrollView } from 'react-native';
+import { StyleSheet, View, Image, Platform, Text, ImageBackground, ScrollView } from 'react-native';
 import stream from "../../assets/stream.png";
 import LoginForm from "../../components/login/loginform";
 // import { AsyncStorage } from 'react-native';
 import back from "../../assets/wall.png";
 
 class Login extends Component {
+  static navigationOptions = {
+    header: null
+  }
   constructor(props) {
     super(props);
     
@@ -65,6 +68,7 @@ const classes = StyleSheet.create({
     flex: 1,
     width: null,
     height: null,
+    paddingTop: Platform.OS === 'ios' ? 50 : 10,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: "black"

@@ -24,11 +24,10 @@ class Voddetails extends Component {
         backgroundColor: 'black',
         // height: 40,
       },
-      headerTintColor: '#fff',
+      // headerTintColor: '#fff',
       headerTitleStyle: {
         fontWeight: 'bold',
       },
-      tabBarVisible: true,
     }
   };
 

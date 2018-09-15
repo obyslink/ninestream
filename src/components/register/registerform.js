@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Picker } from 'native-base';
-import { StyleSheet, View, TextInput, TouchableOpacity, Text, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Platform, TouchableOpacity, Text, AsyncStorage } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setUserId } from '../../store/actions/user';
@@ -174,7 +174,7 @@ class Registerform extends Component {
         value={this.state.firstName}
         onChangeText={firstName => this.setState({ firstName })}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white' }}
         useNativeDriver
       />
@@ -191,7 +191,7 @@ class Registerform extends Component {
         value={this.state.lastName}
         onChangeText={lastName => this.setState({ lastName })}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white' }}
         useNativeDriver
       />
@@ -208,7 +208,7 @@ class Registerform extends Component {
         onChangeText={email => this.setState({ email })}
         iconName={'email'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white' }}
         useNativeDriver
       />
@@ -248,7 +248,7 @@ class Registerform extends Component {
         textContentType="telephoneNumber"
         keyboardType='phone-pad'
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white' }}
         useNativeDriver
       />
@@ -265,7 +265,7 @@ class Registerform extends Component {
         onChangeText={password => this.setState({ password })}
         iconName={'lock'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white' }}
         secureTextEntry
         useNativeDriver
@@ -355,8 +355,7 @@ const classes = StyleSheet.create({
     width: 350
   },
   input: {
-    // marginBottom: 5,
-    height: 40,
+    height: Platform.OS === 'android' ? 40 : 52,
     // width: 350,
     backgroundColor: 'gray',
     marginBottom: 10,

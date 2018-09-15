@@ -1,22 +1,36 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Image, Text, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Image, Platform, Text, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
 import stream from "../../assets/stream.png";
 import back from "../../assets/wall.png";
-import { Button, Input, Item } from 'native-base';
+import { Input, Icon, Item } from 'native-base';
 import { Post } from '../../components/reuse/post';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Snackbar } from "react-native-paper";
+import { Snackbar, Button } from "react-native-paper";
 import { setUserId } from '../../store/actions/user';
+import { Kohana } from 'react-native-textinput-effects';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 
 class Verify extends Component {
   static navigationOptions = {
-    header: null
+    header: Platform.OS === 'android' && null,
+    // headerMode: 'float',
+    title: 'Verify Email',
+    headerTitleStyle: {
+      color: 'white'
+    },
+    headerStyle: {
+      backgroundColor: '#f48221'
+    },
+    headerBackTitleStyle: {
+      color: 'white'
+    }
   }
 
   constructor(props) {
     super(props);
-    
+
     this.state = {
       resend: false,
       otp: '',
@@ -55,10 +69,10 @@ class Verify extends Component {
 
   render() {
     console.log(this.state);
-    
-    let stan ={
-      color: this.state.resend ? 'gray' : 'orange' 
-    } 
+
+    let stan = {
+      color: this.state.resend ? 'gray' : 'orange'
+    }
     return (
       <ImageBackground source={back} style={classes.back} >
         <ScrollView>
@@ -72,19 +86,29 @@ class Verify extends Component {
             </View>
             <View style={classes.form}>
               <TouchableOpacity style={{ marginVertical: 5 }} onPress={this.handleOtpResend} >
-                <Text 
-                  style={stan} 
-                >Resend Code</Text>
+                <Text style={stan}>Resend Code</Text>
               </TouchableOpacity>
-              <Item regular>
-                <Input 
-                  style={{ color: 'white' }} 
-                  onChangeText={(otp) => this.setState({ otp })} 
-                  placeholder='Ten digit code' 
-                />
-              </Item>
-              <Button style={{ marginTop: 20 }} onPress={this.handleVerify} block light>
+              <Kohana
+                style={classes.input}
+                label={'Verification code'}
+                iconClass={Ionicons}
+                value={this.state.otp}
+                onChangeText={(otp) => this.setState({ otp })} 
+                iconName={'ios-code-working'}
+                iconColor={'#f4d29a'}
+                labelStyle={{ 
+                  color: 'white', 
+                  fontWeight: '400', 
+                  fontSize: 15, 
+                  marginTop: Platform.OS === 'ios' ? 4 : -2 }}
+                inputStyle={{ color: 'white', fontSize: 15 }}
+                useNativeDriver
+              />
+              {/* <Button style={{ marginTop: 20 }} onPress={this.handleVerify} block light>
                 <Text>Verify</Text>
+              </Button> */}
+              <Button mode="contained" loading={this.state.loading} style={classes.button} onPress={this.handleVerify} >
+                VERIFY ACCOUNT
               </Button>
             </View>
           </View>
@@ -125,6 +149,15 @@ const classes = StyleSheet.create({
     flex: 1,
     // backgroundColor: '#3498db',
   },
+  input: {
+    height: 50,
+    // backgroundColor: 'rgba(255,255,255,0.2)',
+    // width: 350,
+    backgroundColor: 'gray',
+    // marginBottom: 10,
+    // color: 'white',
+    // paddingVertical: 10
+  },
   logoCont: {
     alignItems: 'center',
     flexGrow: 1,
@@ -139,6 +172,7 @@ const classes = StyleSheet.create({
     flex: 1,
     width: null,
     height: null,
+    paddingTop: Platform.OS === 'ios' ? 50 : 10,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: "black"
@@ -153,6 +187,11 @@ const classes = StyleSheet.create({
     letterSpacing: 3
   },
   form: {
-    marginTop: 40
-  }
+    marginTop: 25
+  },
+  button: {
+    backgroundColor: '#f48221',
+    paddingVertical: 5,
+    marginTop: 12
+  },
 })

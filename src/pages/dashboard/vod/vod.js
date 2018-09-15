@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, AsyncStorage } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Platform } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import { Thumbnail, Content, Spinner, Picker, Container } from 'native-base';
 import { Post } from '../../../components/reuse/post';
@@ -39,6 +39,7 @@ class Vod extends Component {
       headerStyle: {
         backgroundColor: '#f48221',
         height: 40,
+        marginTop: Platform.OS === "ios" ? -40 : 0
       },
       headerTintColor: '#fff',
       headerTitleStyle: {

@@ -15,6 +15,10 @@ const { width } = Dimensions.get('window');
 
 
 class Home extends Component {
+  static navigationOptions = {
+    header: null
+  }
+  
   constructor(props) {
     super(props);
 

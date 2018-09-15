@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Alert, TextInput, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, Platform, TouchableOpacity, Text } from 'react-native';
 import validator from 'validator';
 import { AsyncStorage } from "react-native";
 import { Snackbar, Button } from 'react-native-paper';
@@ -106,7 +106,7 @@ class Loginform extends Component {
         onChangeText={email => this.setState({ email })}
         iconName={'email'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2  }}
         inputStyle={{ color: 'white', fontSize: 15 }}
         useNativeDriver
       />
@@ -122,7 +122,7 @@ class Loginform extends Component {
         onChangeText={password => this.setState({ password })}
         iconName={'lock'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2  }}
         inputStyle={{ color: 'white' }}
         secureTextEntry
         useNativeDriver
@@ -190,13 +190,13 @@ const classes = StyleSheet.create({
     width: 350
   },
   input: {
-    height: 40,
+    height: Platform.OS === 'android' ? 40 : 52,
     // backgroundColor: 'rgba(255,255,255,0.2)',
     // width: 350,
     backgroundColor: 'gray',
     marginBottom: 10,
     // color: 'white',
-    // paddingVertical: 10
+    // paddingVertical: Platform.OS === 'android' ? 40 : -20,
   },
   button: {
     backgroundColor: '#f48221',

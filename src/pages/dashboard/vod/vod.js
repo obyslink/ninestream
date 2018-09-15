@@ -39,7 +39,7 @@ class Vod extends Component {
       headerStyle: {
         backgroundColor: '#f48221',
         height: 40,
-        marginTop: Platform.OS === "ios" ? -40 : 0
+        // marginTop: Platform.OS === "ios" ? -40 : 0
       },
       headerTintColor: '#fff',
       headerTitleStyle: {

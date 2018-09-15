@@ -187,3 +187,17 @@ const Screens = createStackNavigator({
 store.subscribe(() => {
   console.log("Store Changed, ", store.getState());
 });
+
+
+// <dict>
+// 		<key>NSAllowsArbitraryLoads</key>
+// 		<true/>
+// 		<key>NSExceptionDomains</key>
+// 		<dict>
+// 			<key>localhost</key>
+// 			<dict>
+// 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+// 				<true/>
+// 			</dict>
+// 		</dict>
+// 	</dict>

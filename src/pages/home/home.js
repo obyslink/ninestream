@@ -11,7 +11,6 @@ import { getUserObject } from "../../store/actions/user";
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 const { width } = Dimensions.get('window');
-// import SplashScreen from 'react-native-splash-screen';
 
 
 class Home extends Component {
@@ -156,7 +155,6 @@ class Home extends Component {
 
     return (
       <Container style={styles.root} >
-        {/* <Image source={logo} style={styles.back} /> */}
         {/* <ImageBackground source={logo} style={styles.back} > */}
           {
             !this.state.isConnected ?

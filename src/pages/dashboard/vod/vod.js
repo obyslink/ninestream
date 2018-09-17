@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Platform } from 'react-native';
 import { withNavigation } from 'react-navigation';
-import { Thumbnail, Content, Spinner, Picker, Container } from 'native-base';
+import { Thumbnail, Spinner, Picker, Container } from 'native-base';
 import { Post } from '../../../components/reuse/post';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setUserId } from '../../../store/actions/user';
+import { getvodlist, getvodlistupdate, refresh } from '../../../store/actions/data';
 
 class Vod extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -52,46 +53,22 @@ class Vod extends Component {
     super(props);
 
     this.state = {
-      list: [],
-      loading: true,
       selected: 'key0',
-      refreshing: false,
-      user: {}
     }
   }
 
   _onRefresh = () => {
-    this.setState({
-      refreshing: true
-    })
+    this.props.refresh();
     Post('/vod/list', {}).then((res) => {
       if (!res.error) {
-        this.setState({
-          list: res.content.entries,
-          refreshing: false
-        })
+        this.props.getvodlistupdate(res.content.entries);
       } else {
-        this.setState({
-          refreshing: false
-        })
+        this.props.refresh();
       }
     })
   }
 
-  // async getUserObject() {
-  //   let value = await AsyncStorage.getItem('user');
-  //   if (JSON.parse(value) !== null) {
-  //     console.log(JSON.parse(value));
-
-  //     this.setState({
-  //       user: JSON.parse(value)
-  //     })
-  //   }
-  // }
-
   onValueChange(value) {
-    // console.log(value);
-    
     this.setState({
       selected: value
     });
@@ -101,11 +78,9 @@ class Vod extends Component {
   }
 
   componentDidMount() {
-    // get user data from the react native storage
-    // this.getUserObject();
 
     // get list of vod
-    this.getVodList();
+    this.getVodLists();
 
     this.props.navigation.setParams({
       onValueChange: this.onValueChange.bind(this)
@@ -116,26 +91,23 @@ class Vod extends Component {
   }
 
 
-  getVodList() {
+  getVodLists() {
     Post('/vod/list', {}).then((res) => {
       if (!res.error) {
         if (typeof res.content.entries !== "undefined") {
-          this.setState({
-            list: res.content.entries, loading: false,
-          })
+          this.props.getvodlist(res.content.entries);
         }
+      } else {
+        
       }
     })
   }
 
 
   render() {
-    console.log(this.state);
-    
     return (
-      <Container>
-        <Content style={{ backgroundColor: '#242424' }}>
-          {this.state.loading ? (
+      <Container  style={{ backgroundColor: '#242424' }}>
+          {this.props.data.vodLoading ? (
           <View
             contentContainerStyle={{
               flex: 1,
@@ -147,16 +119,16 @@ class Vod extends Component {
           </View>
         ) : (
           <FlatList
-            data={this.state.list}
+            data={this.props.data.vodList}
             refreshControl={
-                <RefreshControl
-                  refreshing={this.state.refreshing}
-                  onRefresh={this._onRefresh}
-                  progressBackgroundColor="black"
-                  enabled={true}
-                  colors={['white']}
-                />
-              }
+              <RefreshControl
+                refreshing={this.props.data.refreshing}
+                onRefresh={this._onRefresh}
+                progressBackgroundColor="black"
+                enabled={true}
+                colors={['white']}
+              />
+            }
             keyExtractor={(item, index) => item + index}
             renderItem={({ item }) => (
               <View style={styles.body} >
@@ -190,12 +162,10 @@ class Vod extends Component {
             )}
           />
         )}
-      </Content>
       </Container>
     );
   }
 }
-{/* {item.summary.substr(0, 80) + ' ...'} */ }
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 10,
@@ -228,7 +198,7 @@ const styles = StyleSheet.create({
 const Vods = withNavigation(Vod);
 function mapStateToProps(state) {
   return {
-    data: state.route,
+    data: state.data,
     user: state.user
   }
 }
@@ -236,26 +206,10 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     setUserId: setUserId,
+    getvodlist: getvodlist,
+    getvodlistupdate: getvodlistupdate,
+    refresh: refresh
   }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Vods);
-
-
-
-// img.assetTypes.map((ass, index) => (
-//   <View key={index} >
-//     {
-//       ass == "Poster H" || ass == "Poster V" &&
-// img[0] == "Poster H" || img[0] == "Poster V" &&
-//   <Thumbnail
-//     style={{
-//       marginRight: 10
-//     }}
-//     square
-//     large
-//     source={{ uri: img.downloadUrl }}
-  // />
-                        //     }
-                        //   </View>
-                        // ))

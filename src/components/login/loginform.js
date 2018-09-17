@@ -1,27 +1,29 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Platform, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, Platform, Dimensions, NetInfo, TouchableOpacity, Text } from 'react-native';
 import validator from 'validator';
 import { AsyncStorage } from "react-native";
 import { Snackbar, Button } from 'react-native-paper';
 import { Post } from '../reuse/post';
-import { withNavigation } from 'react-navigation'; 
+import { withNavigation } from 'react-navigation';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setUserId, getUserObject } from '../../store/actions/user';
 import { Kohana } from 'react-native-textinput-effects';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import DeviceInfo from 'react-native-device-info';
+const { width } = Dimensions.get('window');
+
 
 class Loginform extends Component {
   constructor(props) {
     super(props);
-    // this.unsubscriber = null;
-    
+
     this.state = {
       email: "",
       password: '',
       user: {},
-      loading: false
+      loading: false,
+      isConnected: true, // to check if user connected
     }
   }
 
@@ -34,6 +36,31 @@ class Loginform extends Component {
     } catch (error) {
       console.log(error.message);
     }
+  }
+
+  handleConnectivityChange = isConnected => {
+    if (isConnected) {
+      this.setState({
+        isConnected
+      });
+    } else {
+      this.setState({
+        isConnected,
+        loading: false
+      });
+    }
+  };
+
+  onLoad = async () => {
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+  }
+
+  componentDidMount() {
+    this.onLoad();
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
   }
 
   handleLogin = () => {
@@ -67,30 +94,31 @@ class Loginform extends Component {
               loading: false
             })
           } else {
-            // this.handleOtpResend();
-            setTimeout(() => { this.props.navigation.navigate('Verify', {
-              email: email
-            }) }, 2000);
+            this.props.sendError(res.message, true);
+            // if the user account is not activated
+            console.log('login  failed', res);
+            if(res.message != "The username or password is wrong. Please check your credentials.") {
+                this.props.navigation.navigate('Verify', {
+                  email: email,
+                  password: password
+                })  
+            } // if(res.message != "The username or password is wrong. Please check your c
             this.setState({
-              text: res.message,
-              visible: true,
               password: '',
               loading: false
             })
           }
         })
       } else {
+        this.props.sendError("Password length must have a min of 5 and max of 20", true);
         this.setState({
-          text: "Password length must have a min of 5 and max of 20",
-          visible: true,
           password: '',
           loading: false
         })
       }
     } else {
+      this.props.sendError("Email provided is invalid. Check your email", true)
       this.setState({
-        text: "Email provided is invalid. Check your email",
-        visible: true,
         loading: false
       })
     }
@@ -106,7 +134,7 @@ class Loginform extends Component {
         onChangeText={email => this.setState({ email })}
         iconName={'email'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2  }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white', fontSize: 15 }}
         useNativeDriver
       />
@@ -122,7 +150,7 @@ class Loginform extends Component {
         onChangeText={password => this.setState({ password })}
         iconName={'lock'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2  }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white' }}
         secureTextEntry
         useNativeDriver
@@ -130,19 +158,17 @@ class Loginform extends Component {
     )
   }
 
-  
-// this.getUserData(res.user._user.uid)
   render() {
-    // console.log(this.state);
-    // let user = AsyncStorage.getItem('user');
-    // console.log(user);
     return (
       <View style={classes.container}>
+        {
+          !this.state.isConnected &&
+            <View style={styles.offlineContainer}>
+              <Text style={styles.offlineText}>No Internet Connection</Text>
+            </View>
+        }
         {this.displayEmail()}
         {this.password()}
-        {/* <TouchableOpacity style={classes.button} onPress={this.handleLogin}  >
-          <Text style={classes.buttonText}> LOGIN</Text>
-        </TouchableOpacity> */}
         <Button mode="contained" loading={this.state.loading} style={classes.button} onPress={this.handleLogin} >
           LOGIN
         </Button>
@@ -150,17 +176,6 @@ class Loginform extends Component {
         <TouchableOpacity style={classes.buttonReg} onPress={() => this.props.navigation.navigate('Register')}  >
           <Text style={classes.buttonTextReg}> CREATE AN ACCOUNT</Text>
         </TouchableOpacity>
-
-        <Snackbar
-          visible={this.state.visible}
-          onDismiss={() => this.setState({ visible: false })}
-          action={{
-            label: 'Hide',
-            onPress: () => { this.setState({ visible: false }) },
-          }}
-        >
-          {this.state.text}
-        </Snackbar>
       </View>
     );
   }
@@ -222,55 +237,18 @@ const classes = StyleSheet.create({
     paddingTop: -10
     // alignItems: 'center',
     // justifyContent: 'center'
+  },
+  offlineContainer: {
+    backgroundColor: '#b52424',
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width,
+    position: 'absolute',
+    top: 0
+  },
+  offlineText: {
+    color: '#fff'
   }
 })
-
-
-
-        // firebase.auth().signInAndRetrieveDataWithEmailAndPassword(email, password)
-        //   .then((user) => {
-        //     AsyncStorage.setItem("user", user)
-        //     this.setState({
-        //       user: user
-        //     })
-        //     console.log(user)
-        //   })
-        //   .catch((error) => {
-        //     const { code, message } = error;
-        //     Alert.alert("Error",
-        //       "Something went wrong. Check your internet connection",
-        //       [
-        //         { text: 'OK' },
-        //       ]
-        //     )
-        //   });
-
-
-
-
-
-
-
-{/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 10, marginTop: 20 }} >
-          <Text style={{ color: 'white', fontWeight: '500' }} >LOGIN With</Text>
-        </View>
-
-        <TouchableOpacity style={classes.buttonfb} onPress={this.handleRegister} >
-          <Text style={classes.buttonText}>FACEBOOK</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={classes.buttontw} onPress={this.handleRegister} >
-          <Text style={classes.buttonText}>TWITTER</Text>
-        </TouchableOpacity> */}
-
-// buttonfb: {
-//   backgroundColor: '#3B5998',
-//     paddingVertical: 10,
-//       width: 350,
-//         marginBottom: 5
-// },
-// buttontw: {
-//   backgroundColor: '#1DA1F2',
-//     paddingVertical: 10,
-//       width: 350
-// },

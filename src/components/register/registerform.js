@@ -11,6 +11,7 @@ import { Post } from '../reuse/post';
 import { withNavigation } from 'react-navigation';
 import { Kohana } from 'react-native-textinput-effects';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
+import DeviceInfo from 'react-native-device-info';
 
 class Registerform extends Component {
   constructor(props) {
@@ -37,6 +38,18 @@ class Registerform extends Component {
     }
   }
 
+
+  async storeItem(key, item) {
+    try {
+      //we want to wait for the Promise returned by AsyncStorage.setItem()
+      //to be resolved to the actual value before returning the value
+      await AsyncStorage.setItem(key, JSON.stringify(item));
+      // return jsonOfItem;
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
   handleRegister = () => {
     this.setState({
       loading: true
@@ -52,10 +65,17 @@ class Registerform extends Component {
       country_code: code,
       phone_number: phone
     }
+
+    let log = {
+      username: email,
+      password: password,
+      device_id: DeviceInfo.getUniqueID(),
+      device_name: DeviceInfo.getModel()
+    }
+
     let emailer = email.toLowerCase();
     emailer = emailer.replace(/ /g, "");
-    // console.log("EMAILER", emailer);
-    
+
     // validate first name
     if (firstName !== "") {
       // validated last name
@@ -80,67 +100,72 @@ class Registerform extends Component {
                       firstName: '',
                       country: '',
                     })
-                    setTimeout(() => { this.props.navigation.navigate('Verify', {
-                      email: email.toLowerCase()
-                    }) }, 2000)
-                    this.setState({ 
-                      text: "Check your email to verify account.", 
-                      visible: true,
-                      duration: 20000,
-                      password: '',
-                      loading: false
-                    });
+                    this.storeItem('user_raw', log);
+                    this.props.navigation.navigate('Verify', {
+                      email: email.toLowerCase(),
+                      password: password
+                    })
+                    this.props.sendError("Check your email to verify account.", true);
                   } else {
-                    // console.log("error", res);
+                    this.props.sendError(res.message, true);
                     this.setState({ 
-                      text: res.message, 
-                      visible: true,
                       password: '',
                       loading: false
                     });
                   }
                 })
               } else {
+                this.props.sendError("Password length must have a min of 5 and max of 20", true);
                 this.setState({
-                  text: "Password length must have a min of 5 and max of 20",
+                  // text: "Password length must have a min of 5 and max of 20",
                   password: '',
-                  visible: true,
+                  // visible: true,
                   loading: false
                 })
               }
             } else {
+              this.props.sendError("You must select a country", true);
               this.setState({
-                text: "You must select a country",
-                visible: true,
-                loading: false
+                // text: "You must select a country",
+                // visible: true,
+                loading: false,
+                password: '',
               })
             }
           } else {
+            this.props.sendError("Phone field is required and must be valid", true);
             this.setState({
-              text: "Phone field is required and must be valid",
-              visible: true,
-              loading: false
+              // text: "Phone field is required and must be valid",
+              // visible: true,
+              loading: false,
+              password: '',
             })
           }
         } else {
+          this.props.sendError("Email provided is invalid. Check your email", true);
           this.setState({
-            text: "Email provided is invalid. Check your email",
-            visible: true,
-            loading: false
+            // text: "Email provided is invalid. Check your email",
+            // visible: true,
+            loading: false,
+            password: '',
           })
         }
       } else {
+        this.props.sendError("Last name field is required", true);
         this.setState({
-          text: "Last name field is required",
-          visible: true,
-          loading: false
+          // text: "Last name field is required",
+          // visible: true,
+          loading: false,
+          password: '',
         })
       }
     } else {
+      this.props.sendError("First name field is required", true);
       this.setState({
-        text: "First name field is required",
-        visible: true,
-        loading: false
+        // text: "First name field is required",
+        // visible: true,
+        loading: false,
+        password: '',
       })
     }
   }
@@ -154,6 +179,13 @@ class Registerform extends Component {
         })
       }
     }
+  }
+
+  sendError(text, visible){
+    this.setState({
+      text,
+      visible
+    })
   }
 
 
@@ -274,10 +306,6 @@ class Registerform extends Component {
   }
 
   render() {
-    // let user = AsyncStorage.getItem('user');
-    // console.log(user);
-    // console.log(this.state)
-
     return (
       <View style={classes.container}>
 
@@ -321,7 +349,6 @@ class Registerform extends Component {
             label: 'Hide',
             onPress: () => { this.setState({ visible: false }) },
           }}
-          
         >
           {this.state.text}
         </Snackbar>

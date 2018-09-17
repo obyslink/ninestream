@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Image, Platform, Text, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Image, Platform, Text, Dimensions, NetInfo, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
 import stream from "../../assets/stream.png";
 import back from "../../assets/wall.png";
 import { Input, Icon, Item } from 'native-base';
@@ -7,10 +7,11 @@ import { Post } from '../../components/reuse/post';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Snackbar, Button } from "react-native-paper";
-import { setUserId } from '../../store/actions/user';
+import { setUserId, getUserObject } from '../../store/actions/user';
 import { Kohana } from 'react-native-textinput-effects';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+const { width } = Dimensions.get('window');
+import DeviceInfo from 'react-native-device-info';
 
 class Verify extends Component {
   static navigationOptions = {
@@ -34,24 +35,100 @@ class Verify extends Component {
     this.state = {
       resend: false,
       otp: '',
-      text: ''
+      text: '',
+      loading: false,
+      isConnected: true
     }
   }
 
+  async storeItem(key, item) {
+    try {
+      //we want to wait for the Promise returned by AsyncStorage.setItem()
+      //to be resolved to the actual value before returning the value
+      await AsyncStorage.setItem(key, JSON.stringify(item));
+      // return jsonOfItem;
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+
+  handleConnectivityChange = isConnected => {
+    if (isConnected) {
+      this.setState({
+        isConnected
+      });
+    } else {
+      this.setState({
+        isConnected,
+        loading: false
+      });
+    }
+  };
+
+  onLoad = async () => {
+    NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);
+  }
+
+
+  componentDidMount() {
+    this.onLoad();
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);
+  }
+
+
   handleVerify = () => {
+    this.setState({
+      loading: true
+    })
     let emailer = this.props.navigation.state.params.email.toLowerCase();
     let obj = {
       email: emailer,
       activation_code: this.state.otp
     }
-    Post('/user/activate_account', obj).then((res) => {
-      if (res.error == false) {
-        this.props.navigation.navigate('Login');
+
+    let load = {
+      username: this.props.navigation.state.params.email.toLowerCase(),
+      password: this.props.navigation.state.params.password,
+      device_id: DeviceInfo.getUniqueID(),
+      device_name: DeviceInfo.getModel()
+    }
+
+    console.log("user_raw verify", load);
+
+    Post('/user/activate_account', obj).then((resp) => {
+      if (resp.error == false) {
+        Post('/user/login_device', load).then(res => {
+          console.log("VERIFY LOGIN", res);
+          if (!res.error) {
+            this.storeItem('user', res.content);
+            this.props.getUserObject(res.content);
+            this.setState({
+              loading: false
+            })
+            this.props.navigation.navigate('Dashboard');
+          } else {
+            setTimeout(() => {
+              this.props.navigation.navigate('Login', {
+                email: email
+              })
+            }, 2000);
+            this.setState({
+              text: res.message,
+              visible: true,
+              password: '',
+              loading: false
+            })
+          }
+        })
       } else {
-        this.setState({ text: res.message, visible: true });
-      }
-    })
-  }
+        this.setState({ text: resp.message, visible: true });
+      } // if (res.error == false) {
+    }) // Post('/user/activate_account', obj).then((res) => {
+  } // handleVerify = () => {
 
   handleResend = () => {
     this.setState({
@@ -75,6 +152,12 @@ class Verify extends Component {
     }
     return (
       <ImageBackground source={back} style={classes.back} >
+        {
+        !this.state.isConnected &&
+          <View style={styles.offlineContainer}>
+            <Text style={styles.offlineText}>No Internet Connection</Text>
+          </View>
+        }
         <ScrollView>
           <View style={classes.container}>
             <View style={classes.logoCont}>
@@ -93,26 +176,25 @@ class Verify extends Component {
                 label={'Verification code'}
                 iconClass={Ionicons}
                 value={this.state.otp}
-                onChangeText={(otp) => this.setState({ otp })} 
+                onChangeText={(otp) => this.setState({ otp })}
                 iconName={'ios-code-working'}
                 iconColor={'#f4d29a'}
-                labelStyle={{ 
-                  color: 'white', 
-                  fontWeight: '400', 
-                  fontSize: 15, 
-                  marginTop: Platform.OS === 'ios' ? 4 : -2 }}
+                labelStyle={{
+                  color: 'white',
+                  fontWeight: '400',
+                  fontSize: 15,
+                  marginTop: Platform.OS === 'ios' ? 4 : -2
+                }}
                 inputStyle={{ color: 'white', fontSize: 15 }}
                 useNativeDriver
               />
-              {/* <Button style={{ marginTop: 20 }} onPress={this.handleVerify} block light>
-                <Text>Verify</Text>
-              </Button> */}
               <Button mode="contained" loading={this.state.loading} style={classes.button} onPress={this.handleVerify} >
                 VERIFY ACCOUNT
-              </Button>
+                </Button>
             </View>
           </View>
         </ScrollView>
+
         <Snackbar
           visible={this.state.visible}
           onDismiss={() => this.setState({ visible: false })}
@@ -138,6 +220,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     setUserId: setUserId,
+    getUserObject: getUserObject
   }, dispatch)
 }
 
@@ -194,4 +277,17 @@ const classes = StyleSheet.create({
     paddingVertical: 5,
     marginTop: 12
   },
+  offlineContainer: {
+    backgroundColor: '#b52424',
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width,
+    position: 'absolute',
+    top: 0
+  },
+  offlineText: {
+    color: '#fff'
+  }
 })

@@ -12,8 +12,8 @@ class Xplore extends Component {
   render() {
     return (
       <View style={{ backgroundColor: 'black', flex: 1 }} >
-        <ScrollView>
-          <Header />
+        <Header />
+        <ScrollView style={{ backgroundColor: 'white', marginTop: 5 }} >
           <Content />
         </ScrollView>
       </View>

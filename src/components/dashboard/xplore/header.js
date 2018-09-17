@@ -31,13 +31,13 @@ import {
   StyleSheet
 } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 class Header extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Swiper style={styles.wrapper} height={250} horizontal={true} autoplay>
+        <Swiper style={styles.wrapper} height={height/2.5} horizontal={true} autoplay>
           <View style={styles.slide1}>
             <Image resizeMode='stretch' style={styles.image} source={swap1} />
           </View>

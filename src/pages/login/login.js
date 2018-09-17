@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { StyleSheet, View, Image, Platform, Text, ImageBackground, ScrollView } from 'react-native';
 import stream from "../../assets/stream.png";
 import LoginForm from "../../components/login/loginform";
-// import { AsyncStorage } from 'react-native';
 import back from "../../assets/wall.png";
+import { Snackbar } from 'react-native-paper';
 
 class Login extends Component {
   static navigationOptions = {
@@ -13,8 +13,17 @@ class Login extends Component {
     super(props);
     
     this.state = {
-      loggedIn: false
+      loggedIn: false,
+      text: '',
+      visible: false
     }
+  }
+
+  sendError(text, visible){
+    this.setState({
+      text, 
+      visible
+    })
   }
 
   render() {
@@ -30,10 +39,23 @@ class Login extends Component {
               <Text style={classes.title} >Welcome to 9stream</Text>
             </View>
             <View style={classes.form}>
-              <LoginForm navigation={this.props.navigation} />
+              <LoginForm 
+                navigation={this.props.navigation} 
+                sendError={this.sendError.bind(this)} 
+              />
             </View>
           </View>
         </ScrollView>
+        <Snackbar
+          visible={this.state.visible}
+          onDismiss={() => this.setState({ visible: false })}
+          action={{
+            label: 'Hide',
+            onPress: () => { this.setState({ visible: false }) },
+          }}
+        >
+          {this.state.text}
+        </Snackbar>
       </ImageBackground>
     );
   }

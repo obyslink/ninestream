@@ -1,51 +1,56 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, TouchableWithoutFeedback, ImageBackground, TouchableOpacity, FlatList } from 'react-native';
+import { View, StyleSheet, Dimensions, RefreshControl, TouchableWithoutFeedback, ImageBackground, TouchableOpacity, FlatList } from 'react-native';
 import { Icon, Spinner } from 'native-base';
 import { withNavigation } from 'react-navigation';
-import { Get } from '../../reuse/get';
-import gone from '../../../assets/aqua.jpg';
+import { Surface, Text } from 'react-native-paper';
+import { Grid, Row, Col } from "react-native-easy-grid";
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setUserId } from '../../../store/actions/user';
+import { getxplorelist, getxplorelistupdate, refresh, getxploreloading } from '../../../store/actions/data';
+import { Post } from '../../reuse/post';
+const { width }  = Dimensions.get('window');
 
 class Content extends Component {
   constructor(props) {
     super(props);
     
     this.state = {
-      xplore: [{}, {}],
-      more: "",
-      loading: true
+      more: ""
     }
+  } 
+
+  _onRefresh = () => {
+    this.props.refresh();
+    let obj = {"categories":"free"}
+    Post('/vod/list', obj).then((res) => {
+      if (!res.error) {
+        this.props.getxplorelist(res.content.entries);
+      } else {
+        this.props.refresh();
+      }
+    })
   }
 
 
-  // componentDidMount() {
-    // let empty = [];
-    // firebase.database().ref('xplore').on('value', snapshot => {
-    //   snapshot.forEach(data => {
-    //     empty = empty.concat(data.val())
-    //   })
-    //   this.setState({
-    //     xplore: empty.reverse(),
-    //     loading: false
-    //   })
-    //   empty = [];
-    // })
+  componentDidMount(){
+    let obj = {"categories":"free"}
 
-    
-    // componentDidMount() {
-    //   Get('/api/getfreevideos').then(res => {
-    //     this.setState({
-    //       xplore: res, loading: false
-    //     })
-    //   })
-    // }
-    
+    Post("vod/list", obj).then((res) => {
+      console.log("XPLORE", res);
+      if (!res.error) {
+        this.props.getxplorelist(res.content.entries);
+      } else {
+        this.props.getxploreloading();
+      }
+    });
+  }
 
   render() {
-    // const { navigate } = this.props.navigation
     return (
       <View style={styles.container}>
         <View style={styles.renderEpisodes}>
-          {this.state.loading ? (
+          {this.props.xploreLoading ? (
             <View
               contentContainerStyle={{
                 flex: 1,
@@ -53,45 +58,45 @@ class Content extends Component {
                 justifyContent: "center"
               }}
             >
-              {/* <Spinner color="white" /> */}
-              <Icon name="ios-alert" style={{ marginTop: 15, textAlign: "center", fontSize: 50, color: "white" }} />
-              <Text style={{ textAlign: "center", color: "white" }} >An Update will be available soon</Text>
+              <Spinner color="white" />
             </View>
           ) : (
-            <View style={{ justifyContent: "flex-start" }}>
+            <Grid>
+              <Row>
               <FlatList
-                data={this.state.xplore}
+                data={this.props.data.xploreList}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={this.props.data.refreshing}
+                    onRefresh={this._onRefresh}
+                    progressBackgroundColor="black"
+                    enabled={true}
+                    colors={['white']}
+                  />
+                }
                 keyExtractor={(item, index) => item + index}
                 renderItem={({ item }) => (
-                  <View style={styles.video} >
-                    <View style={styles.videoEpisode}>
-                      <ImageBackground style={styles.image} source={gone}>
-                        <View style={styles.buttonPlay}>
-                          <TouchableWithoutFeedback>
-                            <View style={{ backgroundColor: 'transparent' }}>
-                              <Icon
-                                style={styles.iconPlay}
-                                name="ios-play"
-                                size={30}
-                                color="white"
-                              />
-                            </View>
-                          </TouchableWithoutFeedback>
-                        </View>
-                      </ImageBackground>
-                      <View style={styles.episodeName}>
-                        <Text style={styles.text}>1. The Swap Africa</Text>
-                        <Text style={styles.text}>120mins</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.summary}>
-                      Super weird, when I edited getItemLayout to not
-                      match my actual item component, it rendered immediately again for me...
-                    </Text>
-                  </View>
+                  <Col>
+                    <Surface style={styles.surface}>
+                      {
+                        item.content.map((img, index) => (
+                          img.assetTypes[0] == "Poster H" &&
+                            <Thumbnail
+                              key={index}
+                              style={{ width: (width / 3 - 8), height: 110 }}
+                              square
+                              large
+                              source={{ uri: img.downloadUrl }}
+                            />
+                        ))
+                      }
+                      <Text>{item.title} | {item.runtime}</Text>
+                    </Surface>
+                  </Col>
                 )}
               />
-            </View>
+              </Row>
+            </Grid>
           )}
         </View>
       </View>
@@ -100,45 +105,39 @@ class Content extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: 10
-  },
-  buttonWithIcon: {
-    flexDirection: 'row',
+  surface: {
+    marginVertical: 10,
+    height: 130,
+    width: (width / 3 - 2),
     alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 12,
   },
-  buttonText: {
-    color: 'white'
-  },
-  iconDown: {
-    marginLeft: 5
+  container: {
+    marginHorizontal: 10,
+    // backgroundColor: "white"
   },
   renderEpisodes: {
     marginTop: 10
   },
-  image: {
-    width: 150,
-    height: 80,
-    marginRight: 10
-  },
-  buttonPlay: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1
-  },
-  episodeName: {
-    justifyContent: 'center'
-  },
-  videoEpisode: {
-    flexDirection: 'row'
-  },
-  text: {
-    color: 'white'
-  },
-  summary: {
-    color: 'grey',
-    marginVertical: 10
-  }
 })
 
-export default withNavigation(Content);
+const Contents = withNavigation(Content);
+function mapStateToProps(state) {
+  return {
+    data: state.data,
+    user: state.user
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    setUserId: setUserId,
+    getxplorelist: getxplorelist,
+    getxplorelistupdate: getxplorelistupdate,
+    refresh: refresh,
+    getxploreloading: getxploreloading
+  }, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Contents);

@@ -22,7 +22,7 @@ class Content extends Component {
 
   _onRefresh = () => {
     this.props.refresh();
-    let obj = {"categories":"free"}
+    let obj = {categories:"free"}
     Post('/vod/list', obj).then((res) => {
       if (!res.error) {
         this.props.getxplorelist(res.content.entries);
@@ -34,7 +34,11 @@ class Content extends Component {
 
 
   componentDidMount(){
-    let obj = {"categories":"free"}
+    let obj = {
+      fillers: {
+        categories: "free"
+      },
+    }
 
     Post("vod/list", obj).then((res) => {
       console.log("XPLORE", res);

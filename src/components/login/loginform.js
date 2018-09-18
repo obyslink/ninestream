@@ -202,7 +202,7 @@ const classes = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     // padding: 20,
-    width: 350
+    width: (width - 80),
   },
   input: {
     height: Platform.OS === 'android' ? 40 : 52,

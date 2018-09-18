@@ -1,8 +1,10 @@
 const initialstate = {
+    live: {},
+    liveVideo: '',
+    livePoster: '',
     vodList: [],
     vodCatList: [],
     vodLoading: true,
-    liveList: [],
     refreshing: false,
     xploreList: [],
     xploreLoading: true
@@ -53,13 +55,23 @@ const initialstate = {
 
 
         // live api
-        case "GET_LIVE_LIST":
+        case "GET_LIVE":
             return Object.assign({}, state, {
-                liveList: action.payload
+                live: action.payload
             });
-        case "GET_LIVE_LIST_UPDATE":
+        case "GET_LIVE_POSTER":
             return Object.assign({}, state, {
-                liveList: action.payload,
+                livePoster: action.payload
+            });
+        case "GET_LIVE_VIDEO":
+            return Object.assign({}, state, {
+                liveVideo: action.payload
+            });
+
+            
+        case "GET_LIVE_UPDATE":
+            return Object.assign({}, state, {
+                live: action.payload,
                 refreshing: false
             });
 

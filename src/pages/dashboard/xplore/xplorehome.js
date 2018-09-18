@@ -13,9 +13,9 @@ class Xplore extends Component {
     return (
       <View style={{ backgroundColor: 'black', flex: 1 }} >
         <Header />
-        <ScrollView style={{ backgroundColor: 'white', marginTop: 5 }} >
+        {/* <ScrollView style={{ backgroundColor: 'white', marginTop: 5 }} > */}
           <Content />
-        </ScrollView>
+        {/* </ScrollView> */}
       </View>
     );
   }

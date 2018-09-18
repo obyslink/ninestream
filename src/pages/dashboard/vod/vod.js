@@ -59,7 +59,12 @@ class Vod extends Component {
 
   _onRefresh = () => {
     this.props.refresh();
-    Post('/vod/list', {}).then((res) => {
+    let obj = {
+      filters: {
+        categories: "members"
+      }
+    }
+    Post('/vod/list', obj).then((res) => {
       if (!res.error) {
         this.props.getvodlistupdate(res.content.entries);
       } else {
@@ -97,9 +102,7 @@ class Vod extends Component {
         if (typeof res.content.entries !== "undefined") {
           this.props.getvodlist(res.content.entries);
         }
-      } else {
-        
-      }
+      } 
     })
   }
 

@@ -48,12 +48,25 @@ export const getxploreloading = () => {
 
 
 
-export const getlivelist = (list) => {
+export const getlive = (list) => {
     return {
-        type: "GET_LIVE_LIST",
+        type: "GET_LIVE",
         payload: list
     }
 }
+export const getliveposter = (list) => {
+    return {
+        type: "GET_LIVE_POSTER",
+        payload: list
+    }
+}
+export const getlivevideo = (list) => {
+    return {
+        type: "GET_LIVE_VIDEO",
+        payload: list
+    }
+}
+
 
 export const refresh = (list) => {
     return {

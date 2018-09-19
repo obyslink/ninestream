@@ -3,7 +3,6 @@ import { View, StyleSheet, Dimensions, RefreshControl, TouchableWithoutFeedback,
 import { Icon, Spinner, Thumbnail } from 'native-base';
 import { withNavigation } from 'react-navigation';
 import { Surface, Text } from 'react-native-paper';
-import { Grid, Row, Col } from "react-native-easy-grid";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setUserId } from '../../../store/actions/user';
@@ -62,21 +61,27 @@ class Content extends Component {
       return <View style={[styles.item, styles.itemInvisible]} />;
     }
     return (
-      <Surface style={styles.surface}>
-        {
-          item.content.map((img, index) => (
-            img.assetTypes[0] == "Poster H" &&
-            <Thumbnail
-              key={index}
-              style={{ width: (width / 3 - 8), height: height / 8 }}
-              square
-              large
-              source={{ uri: img.downloadUrl }}
-            />
-          ))
-        }
-        <Text style={{ color: 'black', alignItems: 'flex-start', flexWrap: 'wrap' }} >{item.title} | {item.runtime}</Text>
-      </Surface>
+      <TouchableOpacity
+        onPress={this.props.navigation.navigate('XploreWatch', {
+          item: item, 
+        })}
+      >
+        <Surface style={styles.surface}>
+          {
+            item.content.map((img, index) => (
+              img.assetTypes[0] == "Poster H" &&
+              <Thumbnail
+                key={index}
+                style={{ width: (width / 3 - 8), height: height / 8 }}
+                square
+                large
+                source={{ uri: img.downloadUrl }}
+              />
+            ))
+          }
+          <Text style={{ color: 'gray', alignItems: 'flex-start', flexWrap: 'wrap' }} >{item.title} | {item.runtime}</Text>
+        </Surface>
+      </TouchableOpacity>
     );
   };
 
@@ -112,6 +117,15 @@ class Content extends Component {
             <Spinner color="white" />
           </View>
         ) : (
+          <View>
+            <Text style={{ 
+              fontSize: 25,
+              fontFamily: 'monospace',
+              fontStyle: "italic",
+              color: 'white'
+            }}>
+              Xplore Our Free Content
+            </Text>
             <FlatList
               data={formatData(this.props.data.xploreList, numColumns)}
               style={styles.container}
@@ -128,7 +142,8 @@ class Content extends Component {
               keyExtractor={(item, index) => item + index}
               renderItem={this.renderItem}
             />
-          )}
+          </View>
+        )}
       </View>
     )
   }
@@ -137,7 +152,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginVertical: 5,
-    backgroundColor: 'white'
+    backgroundColor: 'black'
   },
   surface: {
     // height: 130,
@@ -145,6 +160,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
+    // backgroundColor: 'black'
   },
   item: {
     alignItems: 'center',

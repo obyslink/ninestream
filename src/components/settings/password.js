@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Platform, AsyncStorage, Dimensions, ImageBackground } from 'react-native';
 import validator from 'validator';
 import { Snackbar, Button } from 'react-native-paper';
 import { Post } from '../reuse/post';
@@ -10,19 +10,27 @@ import { setUserId, getUserObject } from '../../store/actions/user';
 import { Kohana } from 'react-native-textinput-effects';
 import Octicons from 'react-native-vector-icons/Octicons';
 import DeviceInfo from 'react-native-device-info';
+import back from "../../assets/wall.png";
+
+const { width } = Dimensions.get('window');
 
 class Changepassword extends Component {
   static navigationOptions = {
-    title: 'Change Password',
+    headerTitle: 'Change Password',
+    // headerTitleStyle: {
+    //   color: 'black'
+    // },
+    headerStyle: {
+      backgroundColor: "#f48221"
+    },
     headerTitleStyle: {
-      color: 'black'
+      color: "black"
     }
   }
 
   constructor(props) {
     super(props);
-    // this.unsubscriber = null;
-    
+
     this.state = {
       current: "",
       password: '',
@@ -30,26 +38,6 @@ class Changepassword extends Component {
       loading: false
     }
   }
-
-  // async componentDidMount(){
-  //   let value = await AsyncStorage.getItem('user_raw');
-  //   if (JSON.parse(value) !== null) {
-  //     this.setState({
-  //       user: JSON.parse(value)
-  //     })
-  //   }
-  // }
-
-  // async storeItem(key, item) {
-  //   try {
-  //     //we want to wait for the Promise returned by AsyncStorage.setItem()
-  //     //to be resolved to the actual value before returning the value
-  //     await AsyncStorage.setItem(key, JSON.stringify(item));
-  //     // return jsonOfItem;
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  // }
 
   handlePasswordChange = () => {
     this.setState({
@@ -135,7 +123,7 @@ class Changepassword extends Component {
         onChangeText={current => this.setState({ current })}
         iconName={'key'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white', fontSize: 15 }}
         useNativeDriver
         secureTextEntry
@@ -152,7 +140,7 @@ class Changepassword extends Component {
         onChangeText={password => this.setState({ password })}
         iconName={'lock'}
         iconColor={'#f4d29a'}
-        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15, marginTop: -5 }}
+        labelStyle={{ color: 'white', fontWeight: '400', fontSize: 15,  marginTop: Platform.OS === 'ios' ? 4 : -2 }}
         inputStyle={{ color: 'white', fontSize: 15 }}
         secureTextEntry
         useNativeDriver
@@ -162,11 +150,11 @@ class Changepassword extends Component {
 
   render() {
     return (
-      <View style={{ flex: 1, backgroundColor: '#dddade', alignItems: 'center',
-      justifyContent: 'center', padding: 5 }} >
+      <ImageBackground source={back} style={classes.back} >
         <View style={classes.container}>
           {this.displayEmail()}
           {this.password()}
+
           <Button mode="contained" loading={this.state.loading} style={classes.button} onPress={this.handlePasswordChange} >
             Change Password
           </Button>
@@ -183,7 +171,7 @@ class Changepassword extends Component {
         >
           {this.state.text}
         </Snackbar>
-      </View>
+      </ImageBackground>
     );
   }
 }
@@ -206,19 +194,23 @@ export default connect(mapStateToProps, mapDispatchToProps)(Changepasswords);
 
 const classes = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: 'center',
+    width: (width - 80),
+
     // flex: 1,
-    marginTop: 50,
-    height: 200,
+    // marginTop: 50,
+    // height: 200,
     // justifyContent: 'center',
     // margin: 5,
-    width: 350,
+    // width: 350,
+    // width: (width - 80),
     // alignItems: 'center'
   },
   input: {
-    height: 20,
+    maxHeight: Platform.OS === 'android' ? 40 : 52,
     backgroundColor: 'gray',
-    marginBottom: 10,
-    
+    marginBottom: 10
   },
   button: {
     backgroundColor: '#f48221',
@@ -227,5 +219,14 @@ const classes = StyleSheet.create({
   buttonReg: {
     marginTop: 20,
     paddingVertical: 5
+  },
+  back: {
+    flex: 1,
+    width: null,
+    height: null,
+    paddingTop: Platform.OS === 'ios' ? 50 : 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: "black"
   },
 })

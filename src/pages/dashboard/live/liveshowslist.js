@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import CountDown from 'react-native-countdown-component';
-import { StyleSheet, View, Text,
+import { StyleSheet, View, Text, AppState,
   TouchableOpacity
  } from 'react-native';
 // import Video, { Container } from 'react-native-af-video-player';
@@ -14,7 +14,13 @@ import { Spinner } from "native-base";
 
 class Liveshowslist extends Component {
   static navigationOptions = {
-    header: null
+    headerTitle: "The Swap Live",
+    headerStyle: {
+      backgroundColor: "#f48221"
+    },
+    headerTitleStyle: {
+      color: "black"
+    }
   }
   
   state = {
@@ -25,45 +31,9 @@ class Liveshowslist extends Component {
     duration: 0.0,
     currentTime: 0.0,
     paused: true,
-    count: ''
+    count: 914803036,
+    appState: AppState.currentState
   };
-
-  // componentDidMount(){
-    // Get("/vod/get_by_id/?id=5b9ff05602abf80597276861").then(res => {
-    //   if (!res.error) {
-    //     this.props.getlive(res.content.entries[0]);
-    //     res.content.entries[0].content.forEach(element => {
-    //       element.assetTypes[0] == "Mezzanine Video" &&
-    //         this.props.getlivevideo(element.downloadUrl);
-    //     });
-    //     res.content.entries[0].content.forEach(element => {
-    //       element.assetTypes[0] == "Poster H" &&
-    //         this.props.getliveposter(element.downloadUrl);
-    //     }); 
-    //   } 
-    // })
-    // Get("/")
-  // }
-
-  componentDidMount = () => {
-    Get("/mobile_config/get_countdown").then(res => {
-      if (!res.error) {
-        let t1 = new Date(res.content);
-        console.log("cur", t1);
-        let t2 = new Date();
-        let dif = t1 - t2.getTime();
-        console.log("cur", dif);
-
-        let Seconds_from_T1_to_T2 = dif / 1000;
-        console.log("SEC", Seconds_from_T1_to_T2);
-        let Seconds_Between_Dates = Math.round(Seconds_from_T1_to_T2);
-        this.setState({
-          count: Seconds_Between_Dates
-        })
-      }
-    })
-    
-  }
   
 
   video: Video;
@@ -72,10 +42,30 @@ class Liveshowslist extends Component {
     this.setState({ duration: data.duration });
   };
 
-  onProgress = (data) => {
-    if(this.props.navigation.state.routeName !== "LiveShowsList") {
-      this.setState({ paused: true })
+  componentDidMount() {
+    AppState.addEventListener('change', this._handleAppStateChange);
+    var start = new Date("2018-09-30").getTime();
+    var currentDate = new Date().getTime();
+    let fut = start - currentDate;
+    fut = fut / 1000;
+    this.setState({
+      count: fut
+    })
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this._handleAppStateChange);
+  }
+
+  _handleAppStateChange = (nextAppState) => {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+      console.log('App has come to the foreground!')
     }
+    this.setState({appState: nextAppState});
+  }
+  
+
+  onProgress = (data) => {
     this.setState({ currentTime: data.currentTime });
   };
 
@@ -89,6 +79,8 @@ class Liveshowslist extends Component {
   };
 
   onAudioFocusChanged = (event: { hasAudioFocus: boolean }) => {
+    console.log(event);
+    
     this.setState({ paused: !event.hasAudioFocus })
   };
 
@@ -138,8 +130,8 @@ class Liveshowslist extends Component {
   render() {
     // const flexCompleted = this.getCurrentTimePercentage() * 100;
     // const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
-    console.log(this.state);
-    console.log(this.props.navigation.state);
+    // console.log(this.state);
+    // console.log(this.props.navigation.state);
     
     const data = this.props.data;
     return (
@@ -171,20 +163,20 @@ class Liveshowslist extends Component {
             <View style={styles.resizeModeControl}>
               {this.renderResizeModeControl('cover')}
               {this.renderResizeModeControl('contain')}
-              {this.renderResizeModeControl('stretch')}
+              {/* {this.renderResizeModeControl('stretch')} */}
             </View>
           </View>
         </View>
         {
           this.state.count !== "" &&
-          <CountDown
-            until={1538265600}
-            onFinish={() => alert('finished')}
-            onPress={() => alert('hello')}
-            size={20}
-            digitBgColor="#f48221"
-            timeTxtColor="white"
-          />
+            <CountDown
+              until={this.state.count}
+              onFinish={() => alert('finished')}
+              onPress={() => alert('hello')}
+              size={20}
+              digitBgColor="#f48221"
+              timeTxtColor="white"
+            />
         }
       </View>
     )
@@ -298,3 +290,25 @@ const styles = StyleSheet.create({
               <View style={[styles.innerProgressRemaining, { flex: flexRemaining }]} />
             </View>
           </View> */}
+
+
+            // handleCheckScreenStatus = (args) => {
+  //   console.log("GG______", args);
+    
+  //   if (!this.props.navigation.isFocused) {
+  //     this.setState({
+  //       paused: true
+  //     })
+  //   }
+  // }
+  
+  // componentDidMount = () => {
+  //   console.log("ASSS");
+    
+  //   this.video.addEventListener("checkScreenStatus", this.handleCheckScreenStatus)
+  // }
+
+  // componentWillUnmount() {
+  //   console.log("ASSSerwwwwww");
+  //   this.video.removeEventListener('checkScreenStatus', this.handleCheckScreenStatus);
+  // }

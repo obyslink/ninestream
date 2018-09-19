@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Picker } from 'native-base';
-import { StyleSheet, View, Platform, TouchableOpacity, Text, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Platform, Dimensions, TouchableOpacity, Text, AsyncStorage } from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setUserId } from '../../store/actions/user';
@@ -12,6 +12,8 @@ import { withNavigation } from 'react-navigation';
 import { Kohana } from 'react-native-textinput-effects';
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import DeviceInfo from 'react-native-device-info';
+
+const { width } = Dimensions.get('window');
 
 class Registerform extends Component {
   constructor(props) {
@@ -329,10 +331,7 @@ class Registerform extends Component {
         {/* password details */}
         {this.password()}
 
-        {/* register button */}
-        {/* <TouchableOpacity style={classes.button} onPress={this.handleRegister} >
-          <Text style={classes.buttonText}>REGISTER</Text>
-        </TouchableOpacity> */}
+
         <Button mode="contained" loading={this.state.loading} style={classes.button} onPress={this.handleRegister} >
           REGISTER
         </Button>
@@ -379,7 +378,8 @@ const classes = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     // padding: 10,
-    width: 350
+    // width: 350
+    width: (width - 80),
   },
   input: {
     height: Platform.OS === 'android' ? 40 : 52,

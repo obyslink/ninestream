@@ -83,7 +83,6 @@ class Vod extends Component {
   }
 
   componentDidMount() {
-
     // get list of vod
     this.getVodLists();
 

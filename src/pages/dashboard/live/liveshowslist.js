@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import CountDown from 'react-native-countdown-component';
-import { StyleSheet, View } from 'react-native';
-import Video, { Container } from 'react-native-af-video-player';
+import { StyleSheet, View, Text,
+  TouchableOpacity
+ } from 'react-native';
+// import Video, { Container } from 'react-native-af-video-player';
+import Video from 'react-native-video';
 import { Get } from '../../../components/reuse/get';
 import { getlive, getliveposter, getlivevideo } from "../../../store/actions/data";
 import { bindActionCreators } from 'redux';
@@ -13,91 +16,176 @@ class Liveshowslist extends Component {
   static navigationOptions = {
     header: null
   }
+  
+  state = {
+    rate: 1,
+    volume: 1,
+    muted: false,
+    resizeMode: 'contain',
+    duration: 0.0,
+    currentTime: 0.0,
+    paused: true,
+    count: ''
+  };
 
-  componentDidMount(){
-    Get("/vod/get_by_id/?id=5b9ff05602abf80597276861").then(res => {
+  // componentDidMount(){
+    // Get("/vod/get_by_id/?id=5b9ff05602abf80597276861").then(res => {
+    //   if (!res.error) {
+    //     this.props.getlive(res.content.entries[0]);
+    //     res.content.entries[0].content.forEach(element => {
+    //       element.assetTypes[0] == "Mezzanine Video" &&
+    //         this.props.getlivevideo(element.downloadUrl);
+    //     });
+    //     res.content.entries[0].content.forEach(element => {
+    //       element.assetTypes[0] == "Poster H" &&
+    //         this.props.getliveposter(element.downloadUrl);
+    //     }); 
+    //   } 
+    // })
+    // Get("/")
+  // }
+
+  componentDidMount = () => {
+    Get("/mobile_config/get_countdown").then(res => {
       if (!res.error) {
-        this.props.getlive(res.content.entries[0]);
-        res.content.entries[0].content.forEach(element => {
-          element.assetTypes[0] == "Mezzanine Video" &&
-            this.props.getlivevideo(element.downloadUrl);
-        });
-        res.content.entries[0].content.forEach(element => {
-          element.assetTypes[0] == "Poster H" &&
-            this.props.getliveposter(element.downloadUrl);
-        }); 
-      } 
+        let t1 = new Date(res.content);
+        console.log("cur", t1);
+        let t2 = new Date();
+        let dif = t1 - t2.getTime();
+        console.log("cur", dif);
+
+        let Seconds_from_T1_to_T2 = dif / 1000;
+        console.log("SEC", Seconds_from_T1_to_T2);
+        let Seconds_Between_Dates = Math.round(Seconds_from_T1_to_T2);
+        this.setState({
+          count: Seconds_Between_Dates
+        })
+      }
     })
+    
+  }
+  
+
+  video: Video;
+
+  onLoad = (data) => {
+    this.setState({ duration: data.duration });
+  };
+
+  onProgress = (data) => {
+    if(this.props.navigation.state.routeName !== "LiveShowsList") {
+      this.setState({ paused: true })
+    }
+    this.setState({ currentTime: data.currentTime });
+  };
+
+  onEnd = () => {
+    this.setState({ paused: true });
+    this.video.seek(0);
+  };
+
+  onAudioBecomingNoisy = () => {
+    this.setState({ paused: true })
+  };
+
+  onAudioFocusChanged = (event: { hasAudioFocus: boolean }) => {
+    this.setState({ paused: !event.hasAudioFocus })
+  };
+
+  getCurrentTimePercentage() {
+    if (this.state.currentTime > 0) {
+      return parseFloat(this.state.currentTime) / parseFloat(this.state.duration);
+    }
+    return 0;
+  };
+
+  renderRateControl(rate) {
+    const isSelected = (this.state.rate === rate);
+
+    return (
+      <TouchableOpacity onPress={() => { this.setState({ rate }) }}>
+        <Text style={[styles.controlOption, { fontWeight: isSelected ? 'bold' : 'normal' }]}>
+          {rate}x
+        </Text>
+      </TouchableOpacity>
+    );
   }
 
-  play() {
-    this.video.play()
-    this.video.seekTo(25)
+  renderResizeModeControl(resizeMode) {
+    const isSelected = (this.state.resizeMode === resizeMode);
+
+    return (
+      <TouchableOpacity onPress={() => { this.setState({ resizeMode }) }}>
+        <Text style={[styles.controlOption, { fontWeight: isSelected ? 'bold' : 'normal' }]}>
+          {resizeMode}
+        </Text>
+      </TouchableOpacity>
+    )
   }
 
-  pause() {
-    this.video.pause()
+  renderVolumeControl(volume) {
+    const isSelected = (this.state.volume === volume);
+
+    return (
+      <TouchableOpacity onPress={() => { this.setState({ volume }) }}>
+        <Text style={[styles.controlOption, { fontWeight: isSelected ? 'bold' : 'normal' }]}>
+          {volume * 100}%
+        </Text>
+      </TouchableOpacity>
+    )
   }
 
   render() {
-    const theme = {
-      title: '#FFF',
-      more: '#446984',
-      center: '#7B8F99',
-      fullscreen: '#446984',
-      volume: '#A5957B',
-      scrubberThumb: '#234458',
-      scrubberBar: '#DBD5C7',
-      seconds: '#DBD5C7',
-      duration: '#DBD5C7',
-      progress: '#446984',
-      loading: '#DBD5C7'
-    }
+    // const flexCompleted = this.getCurrentTimePercentage() * 100;
+    // const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
+    console.log(this.state);
+    console.log(this.props.navigation.state);
+    
     const data = this.props.data;
     return (
       <View style={styles.container}>
-      {
-        data.liveVideo !== ""  && data.livePoster !== "" ?
-        <Video
-          // autoPlay
-          ref={(ref) => { this.video = ref }}
-          title={data.live.title}
-          url={
-            // data.liveVideo
-
-            "https://uvodscp-lh.akamaihd.net/i/rjrretvdirect_1@506691/master.m3u8"
-          }
-          logo={
-            data.livePoster
-          }
-          placeholder={
-            data.livePoster
-          }
-          theme={theme}
-          onFullScreen={status => this.onFullScreen(status)}
-          // fullScreenOnly
-          rotateToFullScreen
-        />
-        :
-        <View
-          contentContainerStyle={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center"
-          }}
+        <TouchableOpacity
+          style={styles.fullScreen}
+          onPress={() => this.setState({ paused: !this.state.paused })}
         >
-          <Spinner color="white" />
+          <Video
+            ref={(ref: Video) => { this.video = ref }}
+            source={{ uri: "https://uvodscp-lh.akamaihd.net/i/rjrretvdirect_1@506691/master.m3u8" }}
+            style={styles.fullScreen}
+            rate={this.state.rate}
+            paused={this.state.paused}
+            volume={this.state.volume}
+            muted={this.state.muted}
+            resizeMode={this.state.resizeMode}
+            onLoad={this.onLoad}
+            onProgress={this.onProgress}
+            onEnd={this.onEnd}
+            onAudioBecomingNoisy={this.onAudioBecomingNoisy}
+            onAudioFocusChanged={this.onAudioFocusChanged}
+            repeat={false}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.controls}>
+          <View style={styles.generalControls}>
+            <View style={styles.resizeModeControl}>
+              {this.renderResizeModeControl('cover')}
+              {this.renderResizeModeControl('contain')}
+              {this.renderResizeModeControl('stretch')}
+            </View>
+          </View>
         </View>
-      }
-          
-        <CountDown
-          until={100000}
-          onFinish={() => alert('finished')}
-          onPress={() => alert('hello')}
-          size={20}
-          digitBgColor="#f48221"
-          timeTxtColor="white"
-        />
+        {
+          this.state.count !== "" &&
+          <CountDown
+            until={1538265600}
+            onFinish={() => alert('finished')}
+            onPress={() => alert('hello')}
+            size={20}
+            digitBgColor="#f48221"
+            timeTxtColor="white"
+          />
+        }
       </View>
     )
   }
@@ -122,242 +210,91 @@ export default connect(mapStateToProps, mapDispatchToProps)(Liveshowslist);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black'
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+  },
+  fullScreen: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
+  controls: {
+    backgroundColor: 'transparent',
+    borderRadius: 5,
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+  },
+  progress: {
+    flex: 1,
+    flexDirection: 'row',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  innerProgressCompleted: {
+    height: 20,
+    backgroundColor: '#cccccc',
+  },
+  innerProgressRemaining: {
+    height: 20,
+    backgroundColor: '#2C2C2C',
+  },
+  generalControls: {
+    flex: 1,
+    flexDirection: 'row',
+    borderRadius: 4,
+    overflow: 'hidden',
+    paddingBottom: 10,
+  },
+  rateControl: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  volumeControl: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  resizeModeControl: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  controlOption: {
+    alignSelf: 'center',
+    fontSize: 11,
+    color: 'white',
+    paddingLeft: 2,
+    paddingRight: 2,
+    lineHeight: 12,
   },
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { Component } from 'react';
-// import { View, Text, StyleSheet, FlatList, TouchableOpacity, AsyncStorage } from 'react-native';
-// // import firebase from 'react-native-firebase';
-// import { withNavigation } from 'react-navigation';
-// import { Thumbnail, Content, Spinner, Icon } from 'native-base';
-// import { Get } from '../../../components/reuse/get'
-// // import { Image } from 'native-base';
-// // import gone from '../../../assets/aqua.jpg';
-
-
-// class LiveSHowsList extends Component {
-//   static navigationOptions = ({ navigation }) => {
-//     return {
-//       headerTitle: (
-//         <View style={{ paddingLeft: 20 }} >
-//           <Text style={{ color: '#372B25', fontSize: 20 }} >My Live Shows</Text>
-//         </View>
-//       ),
-//       headerStyle: {
-//         backgroundColor: '#f48221',
-//         height: 40,
-//       },
-//       headerTintColor: '#fff',
-//       headerTitleStyle: {
-//         fontWeight: 'bold',
-//       }
-//     }
-//   };
-
-//   constructor(props) {
-//     super(props);
-    
-//     this.state = {
-//       list: [],
-//       loading: true,
-//       more: '',
-//       user: []
-//     }
-//   }
-
-//   async getdata() {
-//     let user = await AsyncStorage.getItem('user');
-//     if (user !== null) {
-//       this.setState({ user: JSON.parse(user) })
-//     }
-//   }
-
-//   // componentDidMount() {
-//   //   this.getdata();
-//   //   Get('/api/getliveshows').then((res) => {
-//   //     this.setState({
-//   //       list: res, loading: false,
-//   //     })
-//   //   })
-//   // }
-  
-  
-//   render() {
-//     return (
-//       <Content style={{ backgroundColor: "black", padding: 10 }}>
-//         {this.state.loading ? (
-//           <View
-//             contentContainerStyle={{
-              
-//               alignItems: "center",
-//               justifyContent: "center"
-//             }}
-//           >
-//             {/* <Spinner color="white" /> */}
-//             <Icon name="ios-alert" style={{ flex: 1, textAlign: "center", fontSize: 50, color: "white" }} />
-//             <Text style={{ textAlign: "center", color: "white" }} >An Update will be available soon</Text>
-//           </View>
-//         ) : (
-//         <View style={{ flex: 1, justifyContent: "flex-start" }}>
-//           <FlatList
-//             data={this.state.list}
-//             keyExtractor={(item, index) => item + index}
-//             renderItem={({ item }) => (
-//               <View style={styles.body} >
-//                 <TouchableOpacity onPress={() => this.props.navigation.navigate('LiveShow', {item:item, user: this.state.user } )} >
-//                   <View style={{ flexDirection: 'row' }} >
-//                     {/* <Thumbnail large source={gone} /> */}
-//                     <Thumbnail large source={{ uri: item.img }} />
-//                     <View style={{ flexDirection: 'column' }} >
-//                       {/* <Text style={styles.liveName} >The Swap</Text> */}
-//                       <Text style={styles.liveName} >{item.title}</Text>
-//                       <Text style={{ color: '#9E9E9E', paddingLeft: 10, paddingRight: 20 }}>
-//                         {/* yghbe i f jkfnijkjm jnfijkn ffhghbd... */}
-//                         {item.summary.substr(0, 80) + ' ...'}
-//                       </Text>
-//                     </View>
-//                   </View>
-//                 </TouchableOpacity>
-//               </View>
-//               )}
-//             />
-//           </View>
-//         )}
-//       </Content>
-//     );
-//   }
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     marginHorizontal: 10,
-//     backgroundColor: 'black'
-//   },
-//   liveName: { 
-//     color: "#FB8C00", 
-//     paddingTop: 10, 
-//     paddingHorizontal: 5, 
-//     paddingBottom: 5, 
-//     fontWeight: '700' 
-//   },
-//   summary: {
-//     color: "white"
-//   },
-//   body: {
-//     flex: 1,
-//     padding: 10
-//   }
-// })
-
-// export default withNavigation(LiveSHowsList);
-
-
-
-
-
-
-
-
-
-// {/* <Content style={{ backgroundColor: "black", padding: 10 }}>
-//   {this.state.loading ? (
-//     <View
-//       contentContainerStyle={{
-//         flex: 1,
-//         alignItems: "center",
-//         justifyContent: "center"
-//       }}
-//     >
-//       <Spinner color="white" />
-//     </View>
-//   ) : (
-//       <View style={{ flex: 1, justifyContent: "flex-start" }}>
-//         <FlatList
-//           data={this.state.list}
-//           keyExtractor={(item, index) => item + index}
-//           renderItem={({ item }) => (
-//             <View style={{ flex: 1 }} >
-//               <TouchableOpacity onPress={() => this.props.navigation.navigate('LiveShow', { item: item, user: this.state.user })} >
-//                 <View style={{ flexDirection: 'row' }} >
-//                   <Thumbnail large source={{ uri: item.img }} />
-//                   <Thumbnail large source={gone} />
-//                   <Text style={styles.liveName} >{item.title}</Text>
-//                   <Text style={styles.liveName} >The Swap</Text>
-//                 </View>
-//               </TouchableOpacity>
-//               <View style={{ flex: 1, paddingTop: 10 }}>
-//                 {
-//                   item.summary.length > 150 ?
-//                     this.state.more !== item.id ?
-//                       <View style={{ flexDirection: "row" }}>
-//                         <Text style={styles.summary}>
-//                           {item.summary.substring(0, 1580)}
-//                         </Text>
-//                         <TouchableOpacity onPress={() => this.setState({ more: item.id })} >
-//                           <Text style={{ color: 'orange' }} > ...see more</Text>
-//                         </TouchableOpacity>
-//                       </View>
-//                       :
-//                       <Text style={styles.summary}>{item.summary}</Text>
-//                     :
-//                     <Text style={styles.summary}>{item.summary}</Text>
-//                 }
-//               </View>
-//             </View>
-//           )}
-//         />
-//       </View>
-//     )}
-// </Content> */}
+{/* <View style={styles.rateControl}>
+              {this.renderRateControl(0.25)}
+              {this.renderRateControl(0.5)}
+              {this.renderRateControl(1.0)}
+              {this.renderRateControl(1.5)}
+              {this.renderRateControl(2.0)}
+            </View>
+
+            <View style={styles.volumeControl}>
+              {this.renderVolumeControl(0.5)}
+              {this.renderVolumeControl(1)}
+              {this.renderVolumeControl(1.5)}
+            </View> */}
+
+
+          {/* <View style={styles.trackingControls}>
+            <View style={styles.progress}>
+              <View style={[styles.innerProgressCompleted, { flex: flexCompleted }]} />
+              <View style={[styles.innerProgressRemaining, { flex: flexRemaining }]} />
+            </View>
+          </View> */}

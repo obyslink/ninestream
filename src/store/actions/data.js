@@ -32,6 +32,18 @@ export const getxplorelist = (list) => {
         payload: list
     }
 }
+export const getxplorevideo = (list) => {
+    return {
+        type: "GET_XPLORE_VIDEO",
+        payload: list
+    }
+}
+export const getxploreimage = (list) => {
+    return {
+        type: "GET_XPLORE_IMAGE",
+        payload: list
+    }
+}
 export const getxplorelistupdate = (list) => {
     return {
         type: "GET_XPLORE_LIST_UPDATE",

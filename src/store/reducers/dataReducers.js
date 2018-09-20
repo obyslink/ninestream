@@ -7,9 +7,8 @@ const initialstate = {
     vodLoading: true,
     refreshing: false,
     xploreList: [],
-    // xploreVideo: '',
-    // xplorePoster: '',
-    // xploreTitle: '',
+    xploreVideo: '',
+    xplorePoster: '',
     xploreLoading: true
   }
   export default (state = initialstate, action) => {
@@ -41,9 +40,14 @@ const initialstate = {
                 xploreList: action.payload,
                 xploreLoading: false
             });
-        case "GET_XPLORE_LIST_UPDATE":
+        case "GET_XPLORE_VIDEO":
             return Object.assign({}, state, {
-                vodList: action.payload,
+                xploreVideo: action.payload,
+                refreshing: false
+            });
+        case "GET_XPLORE_IMAGE":
+            return Object.assign({}, state, {
+                xplorePoster: action.payload,
                 refreshing: false
             });    
         case "GET_XPLORE_LIST_UPDATE":

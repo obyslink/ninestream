@@ -6,7 +6,7 @@ import { Surface, Text } from 'react-native-paper';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setUserId } from '../../../store/actions/user';
-import { getxplorelist, getxplorelistupdate, refresh, getxploreloading } from '../../../store/actions/data';
+import { getxplorelist, getxplorelistupdate, getxplorevideo, getxploreimage, refresh, getxploreloading } from '../../../store/actions/data';
 import { Post } from '../../reuse/post';
 const { width, height } = Dimensions.get('window');
 
@@ -28,7 +28,7 @@ const formatData = (data, numColumns) => {
   return data;
 };
 
-const numColumns = 2;
+const numColumns = 3;
 
 class Content extends Component {
   constructor(props) {
@@ -45,12 +45,18 @@ class Content extends Component {
     let obj = {
       "sorted": "added",
       "filters": {
-        "categories": "free"
+        "categories": "members"
       },
     }
 
     Post('/vod/list', obj).then((res) => {
       if (!res.error) {
+        // res.content.entries.forEach(resp => {
+        //   if (typeof resp["HLS Stream"] !== "undefined") {
+        //     this.props.getxplorevideo(resp["HLS Stream"])
+        //   }
+        // })
+        // this.props.getxploreimage();
         this.props.getxplorelist(res.content.entries);
       } else {
         this.props.refresh();
@@ -62,16 +68,9 @@ class Content extends Component {
     if (item.empty === true) {
       return <View style={[styles.item, styles.itemInvisible]} />;
     }
-    console.log("TTTTTTTT", item.content["Poster H"]);
-    
     return (
       <TouchableOpacity onPress={ () => {
-          this.props.navigation.navigate("XploreWatch", {
-              title: item.title,
-              url: typeof item.content["HLS Stream"] !== "undefined" ? item.content["HLS Stream"] : null,
-              img: typeof item.content["Poster H"] !== "undefined" ? item.content["Poster H"] : null,
-            }
-          )}
+          this.props.navigation.navigate("XploreWatch", { item: item })}
         }
       >
       {
@@ -86,7 +85,7 @@ class Content extends Component {
               source={{ uri: img["Poster H"] }}
             />
             <Text   
-              style={{ color: 'gray', alignItems: 'flex-start', flexWrap: 'wrap' }} >
+              style={{ color: 'gray', alignItems: 'flex-start', flexWrap: 'nowrap' }} >
               {item.title}
             </Text>
           </Surface>
@@ -96,30 +95,11 @@ class Content extends Component {
     );
   }
 
-  handleXploreWatch(item){
-    let vid;
-    let img;
-    item.content.forEach((img) => {
-      vid = img.assetTypes[0] == "Mezzanine Video" ? img.downloadUrl : null;
-      img = img.assetTypes[0] == "Poster H" ? img.downloadUrl : null;
-    })
-    console.log(vid, "-----", img);
-    
-    this.props.navigation.navigate(
-      "XploreWatch", {
-        title: item.title,
-        url: vid,
-        img: img
-      }
-    )
-  }
-
-
   componentDidMount() {
     let obj = {
       "sorted": "added",
       "filters": {
-        "categories": "free"
+        "categories": "members"
       },
     }
     Post("/vod/list", obj).then((res) => {
@@ -136,7 +116,9 @@ class Content extends Component {
       <View style={{ 
         flex: 1,
         marginVertical: 5,
-        backgroundColor: 'black',
+        }}
+        contentContainerStyle={{
+          backgroundColor: 'black',
         }}
       >
         {this.props.xploreLoading ? (
@@ -192,7 +174,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginVertical: 5,
-    backgroundColor: 'white'
+    backgroundColor: 'black'
   },
   surface: {
     // height: 130,
@@ -200,7 +182,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
-    // backgroundColor: 'black'
+    backgroundColor: 'black'
   },
   item: {
     alignItems: 'center',
@@ -231,7 +213,9 @@ function mapDispatchToProps(dispatch) {
     getxplorelist: getxplorelist,
     getxplorelistupdate: getxplorelistupdate,
     refresh: refresh,
-    getxploreloading: getxploreloading
+    getxploreloading: getxploreloading,
+    getxplorevideo: getxplorevideo,
+    getxploreimage: getxploreimage
   }, dispatch)
 }
 

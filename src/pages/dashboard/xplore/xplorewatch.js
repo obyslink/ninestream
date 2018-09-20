@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Platform } from 'react-native';
+import { Spinner } from "native-base";
 import Video, { Container } from 'react-native-af-video-player';
 import { setCurrentCommentId, passCurrentComentReplyObjectData } from "../../../store/actions/community";
 import { bindActionCreators } from 'redux';
@@ -29,8 +30,10 @@ class LiveShow extends Component {
       text: '',
       video: {},
       height: 0,
-      videoLoading: true,
-      refreshing: false
+      loading: true,
+      refreshing: false,
+      vid: null,
+      img: null
     }
   }
   
@@ -39,6 +42,25 @@ class LiveShow extends Component {
     // Set the params to pass in fullscreen status to navigationOptions
     this.props.navigation.setParams({
       fullscreen: status
+    })
+  }
+
+  componentDidMount(){
+    const item = this.props.navigation.state.params.item.content;
+    item.forEach(element => {
+      if (typeof element["Poster H"] !== "undefined") {
+        this.setState({
+          img: element["Poster H"]
+        })
+      }
+      if (typeof element["HLS Stream"] !== "undefined") {
+        this.setState({
+          vid: element["HLS Stream"]
+        })
+      }
+    });
+    this.setState({
+      loading: false
     })
   }
 
@@ -56,27 +78,37 @@ class LiveShow extends Component {
       progress: '#446984',
       loading: '#DBD5C7'
     }
-
-    console.log("XXXXXXX", this.props.navigation.state);
-    
+    console.log("----",this.state);
     
     return (
       <View style={styles.container}>
-        <Container>
+        {
+          this.state.loading ?
+          <View
+            contentContainerStyle={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            <Spinner color="white" />
+          </View>
+          :
           <Video
             autoPlay
             ref={(ref) => { this.video = ref }}
-            title={this.props.navigation.state.params.title}
-            url={this.props.navigation.state.params.url}
-            logo={this.props.navigation.state.params.img}
-            placeholder={this.props.navigation.state.params.img}
+            title={this.props.navigation.state.params.item.title}
+            url={this.state.vid}
+            logo={this.state.img}
+            placeholder={this.state.img}
             theme={theme}
             // onMorePress={() => this.onMorePress()}
             onFullScreen={status => this.onFullScreen(status)}
             fullScreenOnly
             rotateToFullScreen
           />
-        </Container>
+        }
+          
       </View>
     )
   }

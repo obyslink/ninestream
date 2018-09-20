@@ -40,7 +40,7 @@ class LiveShow extends Component {
   // loading video details and comment with likes count
   componentDidMount() {
     let videoId = this.props.navigation.state.params.item.id;
-    console.log(videoId);
+    // console.log(videoId);
 
     // let userId = this.props.navigation.state.params.user.id;
     Get('/api/getlatestliveshow/' + videoId + "/1").then((res) => {
@@ -49,7 +49,7 @@ class LiveShow extends Component {
       })
       let self = this;
       Get('/api/getcommentforvideo/' + videoId).then((reslate) => {
-        console.log('comment', reslate);
+        // console.log('comment', reslate);
 
         self.setState({
           comments: reslate, videoLoading: false,

@@ -7,6 +7,9 @@ const initialstate = {
     vodLoading: true,
     refreshing: false,
     xploreList: [],
+    // xploreVideo: '',
+    // xplorePoster: '',
+    // xploreTitle: '',
     xploreLoading: true
   }
   export default (state = initialstate, action) => {

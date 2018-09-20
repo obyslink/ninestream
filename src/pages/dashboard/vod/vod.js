@@ -60,8 +60,9 @@ class Vod extends Component {
   _onRefresh = () => {
     this.props.refresh();
     let obj = {
-      filters: {
-        categories: "members"
+      "sorted": "added",
+      "filters": {
+        "categories": "subscribers"
       }
     }
     Post('/vod/list', obj).then((res) => {
@@ -96,7 +97,14 @@ class Vod extends Component {
 
 
   getVodLists() {
-    Post('/vod/list', {}).then((res) => {
+    let obj = {
+      "sorted": "added",
+      "filters": {
+        "categories": "subscribers"
+      }
+    }
+    Post('/vod/list', obj).then((res) => {
+      // console.log("LIST FILTERS", res);
       if (!res.error) {
         if (typeof res.content.entries !== "undefined") {
           this.props.getvodlist(res.content.entries);
@@ -135,21 +143,24 @@ class Vod extends Component {
             renderItem={({ item }) => (
               <View style={styles.body} >
                 <TouchableOpacity 
-                  onPress={() => this.props.navigation.navigate('Voddetails', { item: item, user: this.props.user.user })}
+                  onPress={() => this.props.navigation.navigate('Voddetails', 
+                  { 
+                    item: item, 
+                    user: this.props.user.user })}
                 >
                   <View style={{ flexDirection: 'row' }} >
                     {
                       item.content.map((img, index) => (
-                        img.assetTypes[0] == "Poster H" &&
-                          <Thumbnail
-                            key={index}
-                            style={{
-                              marginRight: 10
-                            }}
-                            square
-                            large
-                            source={{ uri: img.downloadUrl }}
-                          />
+                        typeof img["Poster H"] !== "undefined" &&
+                        <Thumbnail
+                          key={index}
+                          style={{
+                            marginRight: 10
+                          }}
+                          square
+                          large
+                          source={{ uri: img["Poster H"] }}
+                        />
                       ))
                     }
                     <View style={{ flexDirection: 'column' }} >

@@ -31,7 +31,7 @@ class Liveshowslist extends Component {
     duration: 0.0,
     currentTime: 0.0,
     paused: true,
-    count: 914803036,
+    count: "",
     appState: AppState.currentState
   };
   
@@ -44,12 +44,14 @@ class Liveshowslist extends Component {
 
   componentDidMount() {
     AppState.addEventListener('change', this._handleAppStateChange);
-    var start = new Date("2018-09-30").getTime();
-    var currentDate = new Date().getTime();
-    let fut = start - currentDate;
-    fut = fut / 1000;
-    this.setState({
-      count: fut
+    Get('/mobile_config/get_countdown').then(res => {
+      var start = res.content * 1000;
+      var currentDate = new Date().getTime();
+      let fut = start - currentDate;
+      fut = fut / 1000;
+      this.setState({
+        count: fut
+      })
     })
   }
 
@@ -130,7 +132,7 @@ class Liveshowslist extends Component {
   render() {
     // const flexCompleted = this.getCurrentTimePercentage() * 100;
     // const flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
-    // console.log(this.state);
+    console.log(this.state);
     // console.log(this.props.navigation.state);
     
     const data = this.props.data;
@@ -171,8 +173,8 @@ class Liveshowslist extends Component {
           this.state.count !== "" &&
             <CountDown
               until={this.state.count}
-              onFinish={() => alert('finished')}
-              onPress={() => alert('hello')}
+              // onFinish={() => alert('finished')}
+              // onPress={() => alert('hello')}
               size={20}
               digitBgColor="#f48221"
               timeTxtColor="white"

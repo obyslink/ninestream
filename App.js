@@ -120,7 +120,7 @@ const Screens = createStackNavigator({
         },
         {
           initialRouteName: 'Vodlist',
-          // header: null
+          header: null
         }
       ),
       Settings: createStackNavigator(

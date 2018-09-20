@@ -300,6 +300,16 @@ class SettingForm extends Component {
                     containerStyle={{ marginBottom: 10 }}
                   />
                 </TouchableOpacity>
+
+                <SettingsDividerLong />
+
+                <SettingsCategoryHeader
+                  title="v0.4.0"
+                  titleStyle={{ color: 'black' }}
+                  containerStyle={{ marginBottom: 10 }}
+                />
+
+                {/* <SettingsDividerShort /> */}
               </ScrollView>
               <Snackbar
                 visible={this.state.visible}

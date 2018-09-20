@@ -28,7 +28,7 @@ const formatData = (data, numColumns) => {
   return data;
 };
 
-const numColumns = 3;
+const numColumns = 2;
 
 class Content extends Component {
   constructor(props) {
@@ -43,10 +43,12 @@ class Content extends Component {
     this.props.refresh();
     // let obj = { categories: "free" };
     let obj = {
+      "sorted": "added",
       "filters": {
         "categories": "free"
-      }
+      },
     }
+
     Post('/vod/list', obj).then((res) => {
       if (!res.error) {
         this.props.getxplorelist(res.content.entries);
@@ -60,41 +62,67 @@ class Content extends Component {
     if (item.empty === true) {
       return <View style={[styles.item, styles.itemInvisible]} />;
     }
+    console.log("TTTTTTTT", item.content["Poster H"]);
+    
     return (
-      <TouchableOpacity
-        onPress={this.props.navigation.navigate('XploreWatch', {
-          item: item, 
-        })}
+      <TouchableOpacity onPress={ () => {
+          this.props.navigation.navigate("XploreWatch", {
+              title: item.title,
+              url: typeof item.content["HLS Stream"] !== "undefined" ? item.content["HLS Stream"] : null,
+              img: typeof item.content["Poster H"] !== "undefined" ? item.content["Poster H"] : null,
+            }
+          )}
+        }
       >
-        <Surface style={styles.surface}>
-          {
-            item.content.map((img, index) => (
-              img.assetTypes[0] == "Poster H" &&
-              <Thumbnail
-                key={index}
-                style={{ width: (width / 3 - 8), height: height / 8 }}
-                square
-                large
-                source={{ uri: img.downloadUrl }}
-              />
-            ))
-          }
-          <Text style={{ color: 'gray', alignItems: 'flex-start', flexWrap: 'wrap' }} >{item.title} | {item.runtime}</Text>
-        </Surface>
+      {
+        item.content.map((img, index) => (
+          typeof img["Poster H"] !== "undefined" &&
+          <Surface style={styles.surface} key={index}>
+            <Thumbnail
+              key={index}
+              style={{ width: (width / 3 - 8), height: height / 8 }}
+              square
+              large
+              source={{ uri: img["Poster H"] }}
+            />
+            <Text   
+              style={{ color: 'gray', alignItems: 'flex-start', flexWrap: 'wrap' }} >
+              {item.title}
+            </Text>
+          </Surface>
+        ))
+      }
       </TouchableOpacity>
     );
-  };
+  }
+
+  handleXploreWatch(item){
+    let vid;
+    let img;
+    item.content.forEach((img) => {
+      vid = img.assetTypes[0] == "Mezzanine Video" ? img.downloadUrl : null;
+      img = img.assetTypes[0] == "Poster H" ? img.downloadUrl : null;
+    })
+    console.log(vid, "-----", img);
+    
+    this.props.navigation.navigate(
+      "XploreWatch", {
+        title: item.title,
+        url: vid,
+        img: img
+      }
+    )
+  }
 
 
   componentDidMount() {
     let obj = {
-      fillers: {
-        categories: "free"
+      "sorted": "added",
+      "filters": {
+        "categories": "free"
       },
     }
-
     Post("/vod/list", obj).then((res) => {
-      console.log("XPLORE", res);
       if (!res.error) {
         this.props.getxplorelist(res.content.entries);
       } else {
@@ -105,7 +133,12 @@ class Content extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={{ 
+        flex: 1,
+        marginVertical: 5,
+        backgroundColor: 'black',
+        }}
+      >
         {this.props.xploreLoading ? (
           <View
             contentContainerStyle={{
@@ -117,14 +150,21 @@ class Content extends Component {
             <Spinner color="white" />
           </View>
         ) : (
-          <View>
+          <View
+            style={{  
+              flex: 1,
+              backgroundColor: 'black'
+            }}
+          >
             <Text style={{ 
-              fontSize: 25,
+              fontSize: 20,
               fontFamily: 'monospace',
               fontStyle: "italic",
+              textAlign: 'center',
               color: 'white'
-            }}>
-              Xplore Our Free Content
+              }}
+            >
+              Explore Our Free Contents
             </Text>
             <FlatList
               data={formatData(this.props.data.xploreList, numColumns)}
@@ -152,7 +192,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginVertical: 5,
-    backgroundColor: 'black'
+    backgroundColor: 'white'
   },
   surface: {
     // height: 130,

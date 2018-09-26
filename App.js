@@ -37,9 +37,10 @@ import {
 } from 'react-native';
 
 // vod
-import Vodwatch from "./src/pages/dashboard/vod/vodwatch";
+
 import Vodlist from "./src/pages/dashboard/vod/vod";
 import Voddetails from "./src/pages/dashboard/vod/voddetails";
+import Vodwatch from "./src/pages/dashboard/vod/vodwatch";
 
 //messaging
 // import Userchatlist from './src/pages/dashboard/message/userchatlist';
@@ -114,13 +115,16 @@ const Screens = createStackNavigator({
       ),
       Vod: createStackNavigator(
         {
-          Vodlist: Vodlist,
           Voddetails: Voddetails,
+          Vodlist: Vodlist,
+          
           Vodwatch: Vodwatch
         },
         {
           initialRouteName: 'Vodlist',
-          header: null
+          header: null,
+          headerTransitionPreset: 'fade-in-place',
+          headerMode: 'float',
         }
       ),
       Settings: createStackNavigator(
@@ -157,8 +161,8 @@ const Screens = createStackNavigator({
             return <Icon name={iconName} size={10} color={tintColor} style={{ color: 'white' }} />;
           },
         }),
-        animationEnabled: false,
-        // optimizationsEnabled: true,
+        animationEnabled: true,
+        optimizationsEnabled: true,
         tabBarOptions: {
           activeTintColor: 'tomato',
           inactiveTintColor: 'gray',
@@ -174,13 +178,14 @@ const Screens = createStackNavigator({
         }
       }),
     navigationOptions: {
-      header: null
+      header: null,
+      headerMode: 'none'
     }
   }, 
   },
   {
     initialRouteName: 'Home',
-    // headerMode: 'none'
+    headerMode: 'none'
   }
 ); // const Stack = createStackNavigator({
 

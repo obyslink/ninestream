@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, AsyncStorage, TouchableOpacity, Text, ScrollView, KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { View, ImageBackground, TouchableOpacity, Text, ScrollView, StyleSheet } from 'react-native';
 import { Icon } from 'native-base';
 import WriteReview from '../../../components/dashboard/vod/writereview';
 import { Post } from '../../../components/reuse/post';
-import { Snackbar } from 'react-native-paper';
+import { Snackbar, Button } from 'react-native-paper';
 import Review from '../../../components/dashboard/vod/review';
 import Rating from '../../../components/dashboard/vod/rating';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setUserId, getUserObject } from '../../../store/actions/user';
+import { getUserObject } from '../../../store/actions/user';
 
 class Voddetails extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -22,9 +22,9 @@ class Voddetails extends Component {
       ),
       headerStyle: {
         backgroundColor: 'black',
-        // height: 40,
+        marginTop: 50
       },
-      // headerTintColor: '#fff',
+      headerTintColor: '#fff',
       headerTitleStyle: {
         fontWeight: 'bold',
       },
@@ -38,20 +38,36 @@ class Voddetails extends Component {
       review: '',
       user: [],
       text: '',
-      visible: false
+      visible: false,
+      vid: null,
+      img: null,
+      trailer: null
     }
   }
 
-  // async componentDidMount(){
-  //   let value = await AsyncStorage.getItem('user');
-  //   if (JSON.parse(value) !== null) {
-  //     console.log(JSON.parse(value));
-      
-  //     this.setState({
-  //       user: JSON.parse(value)
-  //     })
-  //   }
-  // }
+  componentDidMount(){
+    const item = this.props.navigation.state.params.item.content;
+    item.forEach(element => {
+      if (typeof element["PosterH"] !== "undefined") {
+        this.setState({
+          img: element["PosterH"]
+        })
+      }
+      if (typeof element["HLSStream"] !== "undefined") {
+        this.setState({
+          vid: element["HLSStream"]
+        })
+      }
+      if(typeof element['mainTrailer'] !==  "undefined") {
+        this.setState({
+          trailer: element['mainTrailer']
+        })
+      }
+    });
+    this.setState({
+      loading: false
+    })
+  }
 
   handleVideo = () => {
     this.setState({
@@ -107,10 +123,10 @@ class Voddetails extends Component {
           <TouchableOpacity onPress={this.handleVideo} >
             {
               this.props.navigation.state.params.item.content.map((img, index) => (
-                img.assetTypes[0] == "Poster H" &&
+                typeof img["PosterH"] !== "undefined" &&
                   <ImageBackground
                     key={index}
-                    source={{ uri: img.downloadUrl }}
+                    source={{ uri: img["PosterH"] }}
                     style={{ height: 250, justifyContent: 'center', alignItems: 'center' }}
                   >
                     <Icon
@@ -123,12 +139,9 @@ class Voddetails extends Component {
                   </ImageBackground>
               ))
             }
-            
           </TouchableOpacity>
           <View style={{ justifyContent: 'center' }} >
-            {/* <Text style={{ fontWeight: '700', color: '#424242', padding: 5, fontSize: 22 }} >
-              The Swap Africa
-            </Text> */}
+            <Button mode="outlined" color="orange" compact >Watch Trailer</Button>
             <Text style={{ color: '#757575', padding: 5, marginTop: 10 }} >
               {this.props.navigation.state.params.item.description}
             </Text>
@@ -149,13 +162,15 @@ class Voddetails extends Component {
               />
             </View>
           </View>
-        </ScrollView>
-        {/* text field to write a review */}
-        <WriteReview 
+
+          {/* text field to write a review */}
+          <WriteReview 
           review={this.state.review} 
           handleReview={this.handleReview.bind(this)}
           setReview={this.setReview.bind(this)}
         />
+        </ScrollView>
+        
         <Snackbar
           visible={this.state.visible}
           onDismiss={() => this.setState({ visible: false })}

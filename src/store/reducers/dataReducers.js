@@ -52,7 +52,7 @@ const initialstate = {
             });    
         case "GET_XPLORE_LIST_UPDATE":
             return Object.assign({}, state, {
-                vodList: action.payload,
+                xploreList: action.payload,
                 refreshing: false
             }); 
         case "GET_XPLORE_LOADING":

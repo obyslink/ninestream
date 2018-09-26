@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, Dimensions, RefreshControl, TouchableWithoutFeedback, ImageBackground, TouchableOpacity, FlatList } from 'react-native';
+import { View, StyleSheet, Dimensions, RefreshControl, TouchableOpacity, FlatList } from 'react-native';
 import { Icon, Spinner, Thumbnail } from 'native-base';
 import { withNavigation } from 'react-navigation';
 import { Surface, Text } from 'react-native-paper';
@@ -16,7 +16,7 @@ const formatData = (data, numColumns) => {
   let numberOfElementsLastRow = data.length - (numberOfFullRows * numColumns);
   while (numberOfElementsLastRow !== numColumns && numberOfElementsLastRow !== 0) {
     data.push({
-      id: `blank-${numberOfElementsLastRow}`,
+      _id: `blank-${numberOfElementsLastRow}`,
       title: "",
       runtime: '',
       content: [],
@@ -51,15 +51,9 @@ class Content extends Component {
 
     Post('/vod/list', obj).then((res) => {
       if (!res.error) {
-        // res.content.entries.forEach(resp => {
-        //   if (typeof resp["HLS Stream"] !== "undefined") {
-        //     this.props.getxplorevideo(resp["HLS Stream"])
-        //   }
-        // })
-        // this.props.getxploreimage();
         this.props.getxplorelist(res.content.entries);
       } else {
-        this.props.refresh();
+        this.props.getxploreloading();
       }
     })
   }
@@ -75,14 +69,14 @@ class Content extends Component {
       >
       {
         item.content.map((img, index) => (
-          typeof img["Poster H"] !== "undefined" &&
+          typeof img["PosterH"] !== "undefined" &&
           <Surface style={styles.surface} key={index}>
             <Thumbnail
               key={index}
               style={{ width: (width / 3 - 8), height: height / 8 }}
               square
               large
-              source={{ uri: img["Poster H"] }}
+              source={{ uri: img["PosterH"] }}
             />
             <Text   
               style={{ color: 'gray', alignItems: 'flex-start', flexWrap: 'nowrap' }} >
@@ -140,7 +134,6 @@ class Content extends Component {
           >
             <Text style={{ 
               fontSize: 20,
-              fontFamily: 'monospace',
               fontStyle: "italic",
               textAlign: 'center',
               color: 'white'

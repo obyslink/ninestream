@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setUserId } from '../../../store/actions/user';
 import { getvodlist, getvodlistupdate, refresh } from '../../../store/actions/data';
+import { Button } from 'react-native-paper';
 
 class Vod extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -54,18 +55,19 @@ class Vod extends Component {
 
     this.state = {
       selected: 'key0',
+      noContent: false
     }
   }
 
   _onRefresh = () => {
     this.props.refresh();
     let obj = {
-      "sorted": "added",
-      "filters": {
-        "categories": "subscribers"
-      }
+      // "sorted": "added",
+      // "filters": {
+      //   "categories": "subscribers"
+      // }
     }
-    Post('/vod/list', obj).then((res) => {
+    Post('/tvod/list', obj).then((res) => {
       if (!res.error) {
         this.props.getvodlistupdate(res.content.entries);
       } else {
@@ -98,16 +100,21 @@ class Vod extends Component {
 
   getVodLists() {
     let obj = {
-      "sorted": "added",
-      "filters": {
-        "categories": "subscribers"
-      }
+      // "sorted": "added",
+      // "filters": {
+      //   "categories": "subscribers"
+      // }
     }
-    Post('/vod/list', obj).then((res) => {
-      // console.log("LIST FILTERS", res);
+    Post('/tvod/list', obj).then((res) => {
+      console.log("LIST FILTERS", res);
       if (!res.error) {
         if (typeof res.content.entries !== "undefined") {
           this.props.getvodlist(res.content.entries);
+        }
+        if (res.content.entryCount == 0) {
+          this.setState({
+            noContent: true
+          })
         }
       } 
     })
@@ -115,6 +122,15 @@ class Vod extends Component {
 
 
   render() {
+    if (this.state.noContent) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: "center", backgroundColor: '#242424' }} >
+          <Button mode="contained" disabled  >
+            <Text style={{ color: "#f48221" }}> Currently No Content</Text>
+          </Button>
+        </View>
+      )
+    }
     return (
       <Container  style={{ backgroundColor: '#242424' }}>
           {this.props.data.vodLoading ? (
@@ -140,37 +156,39 @@ class Vod extends Component {
               />
             }
             keyExtractor={(item, index) => item + index}
-            renderItem={({ item }) => (
+            renderItem={({ item }) => ( 
               <View style={styles.body} >
                 <TouchableOpacity 
-                  onPress={() => this.props.navigation.navigate('Voddetails', 
+                onPress={() => this.props.navigation.navigate('Voddetails', 
                   { 
                     item: item, 
-                    user: this.props.user.user })}
-                >
-                  <View style={{ flexDirection: 'row' }} >
-                    {
-                      item.content.map((img, index) => (
-                        typeof img["Poster H"] !== "undefined" &&
-                        <Thumbnail
-                          key={index}
-                          style={{
-                            marginRight: 10
-                          }}
-                          square
-                          large
-                          source={{ uri: img["Poster H"] }}
-                        />
-                      ))
-                    }
-                    <View style={{ flexDirection: 'column' }} >
-                      <Text style={styles.liveName} >{item.title}</Text>
-                      <Text style={{ color: 'white', fontWeight: '200' }}>
-                        {item.description.substr(0, 80) + ' ...'}
-                      </Text>
-                    </View>
+                    user: this.props.user.user 
+                  }
+                )}
+              >
+                <View style={{ flexDirection: 'row' }} >
+                  {
+                    item.content.map((img, index) => (
+                      typeof img["PosterH"] !== "undefined" &&
+                      <Thumbnail
+                        key={index}
+                        style={{
+                          marginRight: 10
+                        }}
+                        square
+                        large
+                        source={{ uri: img["PosterH"] }}
+                      />
+                    ))
+                  }
+                  <View style={{ flexDirection: 'column' }} >
+                    <Text style={styles.liveName} >{item.title}</Text>
+                    <Text style={{ color: 'white', fontWeight: '200', paddingHorizontal: 5 }}>
+                      {item.description.substr(0, 80) + ' ...'}
+                    </Text>
                   </View>
-                </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
               </View>
             )}
           />

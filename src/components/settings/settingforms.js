@@ -304,7 +304,7 @@ class SettingForm extends Component {
                 <SettingsDividerLong />
 
                 <SettingsCategoryHeader
-                  title="v0.4.0"
+                  title="v0.6.0"
                   titleStyle={{ color: 'black' }}
                   containerStyle={{ marginBottom: 10 }}
                 />
